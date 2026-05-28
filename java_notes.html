@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Notes — Complete Reference</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:       #1e1e2e;
+    --bg2:      #181825;
+    --bg3:      #11111b;
+    --surface:  #252535;
+    --surface2: #2e2e45;
+    --border:   #383850;
+    --text:     #cdd6f4;
+    --text2:    #a6adc8;
+    --text3:    #7f849c;
+
+    --blue:     #89b4fa;
+    --green:    #a6e3a1;
+    --yellow:   #f9e2af;
+    --red:      #f38ba8;
+    --purple:   #cba6f7;
+    --pink:     #f5c2e7;
+    --teal:     #94e2d5;
+    --orange:   #fab387;
+    --sky:      #89dceb;
+    --lavender: #b4befe;
+
+    --accent1:  #89b4fa;
+    --accent2:  #cba6f7;
+    --accent3:  #a6e3a1;
+    --accent4:  #f9e2af;
+    --accent5:  #f38ba8;
+    --accent6:  #94e2d5;
+    --accent7:  #fab387;
+    --accent8:  #f5c2e7;
+    --accent9:  #89dceb;
+    --accent10: #b4befe;
+
+    --sidebar-w: 280px;
+    --header-h:  4px;
+    --radius:    10px;
+    --radius-sm: 6px;
+    --trans:     0.25s ease;
+  }
+  html { scroll-behavior: smooth; font-size: 15px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+  ::selection { background: #89b4fa44; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg3); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  /* ── Progress Bar ── */
+  #progress-bar {
+    position: fixed; top: 0; left: 0; height: 4px;
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--pink));
+    width: 0%; z-index: 9999;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px #89b4fa88;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: var(--sidebar-w);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    z-index: 100;
+    transition: transform var(--trans);
+    overflow: hidden;
+  }
+  #sidebar-header {
+    padding: 20px 16px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  #sidebar-header h1 {
+    font-size: 1.15rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+  }
+  #search-box {
+    width: 100%; padding: 7px 10px 7px 30px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text);
+    font-size: 0.82rem; outline: none;
+    transition: border-color var(--trans);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237f849c' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: 8px center;
+  }
+  #search-box:focus { border-color: var(--blue); }
+  #search-box::placeholder { color: var(--text3); }
+  #nav-list {
+    list-style: none; overflow-y: auto; flex: 1;
+    padding: 8px 0;
+  }
+  #nav-list li a {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 16px;
+    color: var(--text2); font-size: 0.82rem;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all var(--trans);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #nav-list li a .nav-num {
+    font-size: 0.68rem; color: var(--text3);
+    background: var(--surface); border-radius: 4px;
+    padding: 1px 5px; flex-shrink: 0;
+  }
+  #nav-list li a:hover { color: var(--text); background: var(--surface); }
+  #nav-list li a.active {
+    color: var(--blue); border-left-color: var(--blue);
+    background: #89b4fa11;
+  }
+  #nav-list li a.hidden { display: none; }
+
+  /* ── Hamburger ── */
+  #hamburger {
+    display: none; position: fixed; top: 10px; left: 10px;
+    z-index: 200; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 8px;
+    cursor: pointer; transition: background var(--trans);
+  }
+  #hamburger:hover { background: var(--surface2); }
+  #hamburger span { display: block; width: 20px; height: 2px; background: var(--text); margin: 4px 0; transition: var(--trans); }
+  #overlay { display: none; position: fixed; inset: 0; background: #00000088; z-index: 99; }
+
+  /* ── Main Content ── */
+  #main {
+    margin-left: var(--sidebar-w);
+    padding: 40px 44px 80px;
+    max-width: 980px;
+    transition: margin-left var(--trans);
+  }
+
+  /* ── Section Cards ── */
+  .section-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 28px;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+    transition: background var(--trans);
+  }
+  .section-header:hover { background: var(--surface2); }
+  .section-title {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 1.05rem; font-weight: 700;
+  }
+  .section-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 8px;
+    font-size: 0.75rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .chevron {
+    transition: transform var(--trans); font-size: 0.8rem; color: var(--text3);
+  }
+  .section-card.collapsed .chevron { transform: rotate(-90deg); }
+  .section-body { padding: 20px; }
+  .section-card.collapsed .section-body { display: none; }
+
+  /* ── Accent Colors per Section ── */
+  .acc-1 .section-num { background: #89b4fa22; color: var(--accent1); }
+  .acc-1 .section-header { border-left: 4px solid var(--accent1); }
+  .acc-2 .section-num { background: #cba6f722; color: var(--accent2); }
+  .acc-2 .section-header { border-left: 4px solid var(--accent2); }
+  .acc-3 .section-num { background: #a6e3a122; color: var(--accent3); }
+  .acc-3 .section-header { border-left: 4px solid var(--accent3); }
+  .acc-4 .section-num { background: #f9e2af22; color: var(--accent4); }
+  .acc-4 .section-header { border-left: 4px solid var(--accent4); }
+  .acc-5 .section-num { background: #f38ba822; color: var(--accent5); }
+  .acc-5 .section-header { border-left: 4px solid var(--accent5); }
+  .acc-6 .section-num { background: #94e2d522; color: var(--accent6); }
+  .acc-6 .section-header { border-left: 4px solid var(--accent6); }
+  .acc-7 .section-num { background: #fab38722; color: var(--accent7); }
+  .acc-7 .section-header { border-left: 4px solid var(--accent7); }
+  .acc-8 .section-num { background: #f5c2e722; color: var(--accent8); }
+  .acc-8 .section-header { border-left: 4px solid var(--accent8); }
+  .acc-9 .section-num { background: #89dceb22; color: var(--accent9); }
+  .acc-9 .section-header { border-left: 4px solid var(--accent9); }
+  .acc-10 .section-num { background: #b4befe22; color: var(--accent10); }
+  .acc-10 .section-header { border-left: 4px solid var(--accent10); }
+  .acc-11 .section-num { background: #89b4fa22; color: var(--accent1); }
+  .acc-11 .section-header { border-left: 4px solid var(--accent1); }
+  .acc-12 .section-num { background: #cba6f722; color: var(--accent2); }
+  .acc-12 .section-header { border-left: 4px solid var(--accent2); }
+  .acc-13 .section-num { background: #a6e3a122; color: var(--accent3); }
+  .acc-13 .section-header { border-left: 4px solid var(--accent3); }
+  .acc-14 .section-num { background: #f9e2af22; color: var(--accent4); }
+  .acc-14 .section-header { border-left: 4px solid var(--accent4); }
+  .acc-15 .section-num { background: #f38ba822; color: var(--accent5); }
+  .acc-15 .section-header { border-left: 4px solid var(--accent5); }
+  .acc-16 .section-num { background: #94e2d522; color: var(--accent6); }
+  .acc-16 .section-header { border-left: 4px solid var(--accent6); }
+  .acc-17 .section-num { background: #fab38722; color: var(--accent7); }
+  .acc-17 .section-header { border-left: 4px solid var(--accent7); }
+
+  /* ── Typography ── */
+  h2 { font-size: 1.25rem; color: var(--blue); margin: 20px 0 10px; }
+  h3 { font-size: 1rem; color: var(--lavender); margin: 16px 0 8px; }
+  p  { color: var(--text2); margin-bottom: 10px; }
+  ul, ol { padding-left: 22px; color: var(--text2); margin-bottom: 10px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  em { color: var(--yellow); font-style: normal; }
+  a  { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── Code Blocks ── */
+  pre {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    margin: 10px 0 14px;
+    position: relative;
+  }
+  pre .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 3px 8px;
+    font-size: 0.7rem; color: var(--text3); cursor: pointer;
+    transition: all var(--trans); opacity: 0;
+  }
+  pre:hover .copy-btn { opacity: 1; }
+  pre .copy-btn:hover { color: var(--text); background: var(--surface); }
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+    font-size: 0.82rem;
+  }
+  p code, li code {
+    background: var(--bg3); padding: 2px 6px;
+    border-radius: 4px; color: var(--orange);
+    font-size: 0.8rem;
+  }
+
+  /* Syntax highlighting */
+  .kw  { color: #569cd6; font-weight: 600; } /* keywords */
+  .ty  { color: #4ec9b0; }                   /* types */
+  .st  { color: #ce9178; }                   /* strings */
+  .cm  { color: #6a9955; font-style: italic; }/* comments */
+  .nu  { color: #b5cea8; }                   /* numbers */
+  .fn  { color: #dcdcaa; }                   /* functions */
+  .cl  { color: #4ec9b0; }                   /* classes */
+  .an  { color: #9cdcfe; }                   /* annotations/vars */
+  .op  { color: #d4d4d4; }                   /* operators */
+  .pu  { color: #d4d4d4; }                   /* punctuation */
+
+  /* ── Tables ── */
+  .tbl-wrap { overflow-x: auto; margin: 12px 0; border-radius: var(--radius-sm); }
+  table {
+    width: 100%; border-collapse: collapse; font-size: 0.83rem;
+  }
+  thead { background: var(--bg3); }
+  thead th {
+    padding: 10px 14px; text-align: left;
+    color: var(--text); font-weight: 600;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background var(--trans); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+  td { padding: 9px 14px; color: var(--text2); vertical-align: top; }
+  td code { font-size: 0.78rem; }
+
+  /* ── Callout / Info boxes ── */
+  .callout {
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin: 12px 0;
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 0.87rem;
+  }
+  .callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+  .callout.info  { background: #89b4fa18; border-left: 3px solid var(--blue); color: var(--blue); }
+  .callout.warn  { background: #f9e2af18; border-left: 3px solid var(--yellow); color: var(--yellow); }
+  .callout.tip   { background: #a6e3a118; border-left: 3px solid var(--green); color: var(--green); }
+  .callout.danger{ background: #f38ba818; border-left: 3px solid var(--red); color: var(--red); }
+  .callout p { color: inherit; margin: 0; }
+
+  /* ── ASCII Art blocks ── */
+  .ascii {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+    color: var(--teal); line-height: 1.5; overflow-x: auto;
+    margin: 10px 0;
+  }
+
+  /* ── Badge / Tag ── */
+  .badge {
+    display: inline-block; padding: 2px 8px;
+    border-radius: 20px; font-size: 0.7rem; font-weight: 600;
+    margin: 2px;
+  }
+  .badge.blue   { background: #89b4fa22; color: var(--blue); border: 1px solid #89b4fa44; }
+  .badge.green  { background: #a6e3a122; color: var(--green); border: 1px solid #a6e3a144; }
+  .badge.yellow { background: #f9e2af22; color: var(--yellow); border: 1px solid #f9e2af44; }
+  .badge.red    { background: #f38ba822; color: var(--red); border: 1px solid #f38ba844; }
+  .badge.purple { background: #cba6f722; color: var(--purple); border: 1px solid #cba6f744; }
+  .badge.orange { background: #fab38722; color: var(--orange); border: 1px solid #fab38744; }
+  .badge.teal   { background: #94e2d522; color: var(--teal); border: 1px solid #94e2d544; }
+
+  /* ── Two column layout ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 10px 0; }
+  @media(max-width:700px){ .two-col { grid-template-columns: 1fr; } }
+  .col-box {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px;
+  }
+  .col-box h4 { font-size: 0.87rem; margin-bottom: 8px; }
+
+  /* ── Back to Top ── */
+  #back-top {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text2); width: 40px; height: 40px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 1.1rem;
+    transition: all var(--trans);
+    opacity: 0; pointer-events: none;
+    box-shadow: 0 4px 12px #00000066;
+    z-index: 90;
+  }
+  #back-top.visible { opacity: 1; pointer-events: all; }
+  #back-top:hover { background: var(--blue); color: var(--bg3); border-color: var(--blue); transform: translateY(-2px); }
+
+  /* ── Page Header ── */
+  #page-header {
+    text-align: center; padding: 20px 0 36px;
+  }
+  #page-header h1 {
+    font-size: 2.2rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 50%, var(--pink) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  #page-header p { color: var(--text3); font-size: 0.9rem; }
+  .header-badges { margin-top: 10px; }
+
+  /* ── Search highlight ── */
+  .search-highlight { background: #f9e2af44; border-radius: 3px; color: var(--yellow); }
+
+  /* ── Divider ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+  /* ── Responsive ── */
+  @media(max-width: 860px) {
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.open { transform: translateX(0); }
+    #hamburger { display: block; }
+    #overlay.show { display: block; }
+    #main { margin-left: 0; padding: 50px 18px 60px; }
+  }
+  @media(max-width: 540px) {
+    #page-header h1 { font-size: 1.6rem; }
+    .section-body { padding: 14px; }
+  }
+
+  /* ── Expand/Collapse All ── */
+  #controls {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .ctrl-btn {
+    padding: 6px 14px; border-radius: var(--radius-sm);
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text2); cursor: pointer; font-size: 0.8rem;
+    transition: all var(--trans);
+  }
+  .ctrl-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--blue); }
+
+  /* lifecycle diagram boxes */
+  .lifecycle { display: flex; flex-wrap: wrap; gap: 0; align-items: center; margin: 10px 0; }
+  .lc-box {
+    padding: 8px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 600;
+    background: var(--bg3); border: 1px solid var(--border); white-space: nowrap;
+  }
+  .lc-arrow { color: var(--text3); padding: 0 4px; font-size: 1rem; }
+
+  /* no-search-results */
+  #no-results {
+    text-align: center; padding: 60px 20px; color: var(--text3);
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div id="progress-bar"></div>
+
+<!-- Hamburger -->
+<button id="hamburger" aria-label="Open menu">
+  <span></span><span></span><span></span>
+</button>
+
+<!-- Overlay -->
+<div id="overlay"></div>
+
+<!-- Sidebar -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <h1>☕ Java Notes</h1>
+    <input type="search" id="search-box" placeholder="Search topics…" autocomplete="off">
+  </div>
+  <ul id="nav-list">
+    <li><a href="#s1" data-id="s1"><span class="nav-num">01</span>How Java Works</a></li>
+    <li><a href="#s2" data-id="s2"><span class="nav-num">02</span>Entry Point</a></li>
+    <li><a href="#s3" data-id="s3"><span class="nav-num">03</span>Data Types</a></li>
+    <li><a href="#s4" data-id="s4"><span class="nav-num">04</span>Operators &amp; Precedence</a></li>
+    <li><a href="#s5" data-id="s5"><span class="nav-num">05</span>Strings</a></li>
+    <li><a href="#s6" data-id="s6"><span class="nav-num">06</span>OOP Concepts</a></li>
+    <li><a href="#s7" data-id="s7"><span class="nav-num">07</span>Key Keywords</a></li>
+    <li><a href="#s8" data-id="s8"><span class="nav-num">08</span>Polymorphism &amp; Abstraction</a></li>
+    <li><a href="#s9" data-id="s9"><span class="nav-num">09</span>Interfaces</a></li>
+    <li><a href="#s10" data-id="s10"><span class="nav-num">10</span>Inner Classes</a></li>
+    <li><a href="#s11" data-id="s11"><span class="nav-num">11</span>Object Class</a></li>
+    <li><a href="#s12" data-id="s12"><span class="nav-num">12</span>Exception Handling</a></li>
+    <li><a href="#s13" data-id="s13"><span class="nav-num">13</span>Boxing &amp; Unboxing</a></li>
+    <li><a href="#s14" data-id="s14"><span class="nav-num">14</span>Multithreading</a></li>
+    <li><a href="#s15" data-id="s15"><span class="nav-num">15</span>Synchronization &amp; Locks</a></li>
+    <li><a href="#s16" data-id="s16"><span class="nav-num">16</span>Lambda Expressions</a></li>
+    <li><a href="#s17" data-id="s17"><span class="nav-num">17</span>Thread Pooling &amp; Executors</a></li>
+  </ul>
+</nav>
+
+<!-- Main -->
+<main id="main">
+  <div id="page-header">
+    <h1>Java Complete Reference</h1>
+    <p>A comprehensive, interactive guide — from basics to concurrency</p>
+    <div class="header-badges">
+      <span class="badge blue">Java 17+</span>
+      <span class="badge purple">OOP</span>
+      <span class="badge green">Concurrency</span>
+      <span class="badge yellow">Lambdas</span>
+      <span class="badge orange">Multithreading</span>
+    </div>
+  </div>
+
+  <div id="controls">
+    <button class="ctrl-btn" onclick="expandAll()">⊞ Expand All</button>
+    <button class="ctrl-btn" onclick="collapseAll()">⊟ Collapse All</button>
+  </div>
+
+  <div id="no-results">
+    <div style="font-size:2.5rem">🔍</div>
+    <p style="margin-top:8px">No sections match your search.</p>
+  </div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 1 — HOW JAVA WORKS
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-1" id="s1">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title">
+      <span class="section-num">01</span>
+      How Java Works
+    </div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <p>Java achieves its famous <strong>"Write Once, Run Anywhere"</strong> promise through a clever two-step compilation process that decouples your source code from any specific machine architecture.</p>
+
+    <h2>Two-Step Compilation</h2>
+    <p>Unlike C/C++ which compiles directly to native machine code, Java uses an intermediate representation called <em>bytecode</em>.</p>
+
+    <div class="ascii">
+Step 1 — javac (Java Compiler)
+┌─────────────────┐          ┌─────────────────┐
+│  HelloWorld.java │ ──────▶  │ HelloWorld.class │
+│  (source code)   │  javac   │  (bytecode)      │
+└─────────────────┘          └─────────────────┘
+      Human-readable               Platform-neutral
+
+Step 2 — JVM Execution
+┌──────────────────────────────────────────────────────┐
+│                      JVM                             │
+│  ┌────────────┐   ┌─────────┐   ┌────────────────┐  │
+│  │ Class      │──▶│Bytecode │──▶│  Interpreter   │  │
+│  │ Loader     │   │Verifier │   │  + JIT Compiler│  │
+│  └────────────┘   └─────────┘   └───────┬────────┘  │
+└──────────────────────────────────────────┼───────────┘
+                                           ▼
+                               ┌─────────────────────┐
+                               │  Native Machine Code │
+                               │  (OS + CPU specific) │
+                               └─────────────────────┘
+    </div>
+
+    <h2>JVM Components</h2>
+    <ul>
+      <li><strong>Class Loader</strong> — Loads <code>.class</code> files into memory, linking and initializing them.</li>
+      <li><strong>Bytecode Verifier</strong> — Checks the bytecode for safety violations before execution.</li>
+      <li><strong>Execution Engine</strong> — Runs the verified bytecode using an interpreter or JIT.</li>
+    </ul>
+
+    <h2>JIT Compiler (Just-In-Time)</h2>
+    <p>The JVM starts by <em>interpreting</em> bytecode — executing one instruction at a time. But it profiles which code runs most frequently (<em>hot spots</em>) and uses the JIT compiler to translate those into optimised native machine code on the fly.</p>
+
+    <div class="ascii">
+First few runs:
+  Bytecode ──▶ Interpreter ──▶ Executed (slower)
+
+After profiling (hot methods detected):
+  Bytecode ──▶ JIT Compiler ──▶ Native Code (cached) ──▶ Executed (fast!)
+
+         Cold Code             Hot Code
+         (interpreted)     (JIT-compiled, optimised)
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <p><strong>JIT Optimisations include:</strong> inlining, dead code elimination, loop unrolling, escape analysis, and branch prediction hints. This is why Java performance rivals C++ in long-running server workloads.</p>
+    </div>
+
+    <h2>JVM vs JRE vs JDK</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Acronym</th><th>Full Name</th><th>Contains</th><th>Used By</th></tr></thead>
+        <tbody>
+          <tr><td><code>JVM</code></td><td>Java Virtual Machine</td><td>Execution engine, GC, runtime</td><td>Runtime</td></tr>
+          <tr><td><code>JRE</code></td><td>Java Runtime Environment</td><td>JVM + standard libraries</td><td>End users</td></tr>
+          <tr><td><code>JDK</code></td><td>Java Development Kit</td><td>JRE + javac + tools</td><td>Developers</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 2 — ENTRY POINT
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-2" id="s2">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">02</span>Entry Point</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <p>Every Java program begins execution at a <strong>single, fixed signature method</strong>. The JVM searches for this method by name and exact signature when launching an application.</p>
+
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">public</span> <span class="kw">class</span> <span class="cl">HelloWorld</span> <span class="pu">{</span>
+
+    <span class="cm">// ↓ The JVM's entry point — must match EXACTLY</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="ty">void</span> <span class="fn">main</span><span class="pu">(</span><span class="ty">String</span><span class="pu">[]</span> <span class="an">args</span><span class="pu">)</span> <span class="pu">{</span>
+        <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Hello, World!"</span><span class="pu">);</span>
+    <span class="pu">}</span>
+
+<span class="pu">}</span></code></pre>
+
+    <h2>Anatomy of the main Signature</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Keyword</th><th>Why required</th></tr></thead>
+        <tbody>
+          <tr><td><code>public</code></td><td>JVM must be able to call it from outside the class.</td></tr>
+          <tr><td><code>static</code></td><td>JVM calls it <em>without</em> creating an instance — no object exists yet.</td></tr>
+          <tr><td><code>void</code></td><td>JVM doesn't use a return value; exit code is managed via <code>System.exit()</code>.</td></tr>
+          <tr><td><code>main</code></td><td>Hardcoded name the JVM looks for (by convention and specification).</td></tr>
+          <tr><td><code>String[] args</code></td><td>Command-line arguments passed to the program at launch.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Why static?</h2>
+    <p>When the JVM starts, no objects have been created yet — the heap is empty. A <code>static</code> method belongs to the <em>class</em> itself, not an instance, so the JVM can invoke it without needing to instantiate anything first.</p>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ️</span>
+      <p><strong>Since Java 21</strong>, unnamed classes and instance main methods were previewed (JEP 463), allowing simpler entry points for small programs. The traditional signature remains the standard.</p>
+    </div>
+
+    <h2>Command-line Arguments</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">public</span> <span class="kw">static</span> <span class="ty">void</span> <span class="fn">main</span><span class="pu">(</span><span class="ty">String</span><span class="pu">[]</span> <span class="an">args</span><span class="pu">)</span> <span class="pu">{</span>
+    <span class="cm">// Run: java MyApp Alice 42</span>
+    <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">args</span><span class="pu">[</span><span class="nu">0</span><span class="pu">]);</span>  <span class="cm">// "Alice"</span>
+    <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">args</span><span class="pu">[</span><span class="nu">1</span><span class="pu">]);</span>  <span class="cm">// "42"  (still a String!)</span>
+    <span class="ty">int</span> <span class="an">n</span> <span class="op">=</span> <span class="cl">Integer</span><span class="pu">.</span><span class="fn">parseInt</span><span class="pu">(</span><span class="an">args</span><span class="pu">[</span><span class="nu">1</span><span class="pu">]);</span>  <span class="cm">// parse to int</span>
+<span class="pu">}</span></code></pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 3 — DATA TYPES
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-3" id="s3">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">03</span>Data Types</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <p>Java is a <em>statically typed</em> language. Every variable must have a declared type known at compile time. Java has <strong>8 primitive types</strong> — these are not objects, they live on the stack and hold their values directly.</p>
+
+    <h2>Primitive Types</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Size</th><th>Default</th><th>Min</th><th>Max</th><th>Example Literal</th></tr></thead>
+        <tbody>
+          <tr><td><code>byte</code></td><td>1 byte / 8-bit</td><td>0</td><td>-128</td><td>127</td><td><code>byte b = 100;</code></td></tr>
+          <tr><td><code>short</code></td><td>2 bytes / 16-bit</td><td>0</td><td>-32,768</td><td>32,767</td><td><code>short s = 30000;</code></td></tr>
+          <tr><td><code>int</code></td><td>4 bytes / 32-bit</td><td>0</td><td>-2,147,483,648</td><td>2,147,483,647</td><td><code>int i = 42;</code></td></tr>
+          <tr><td><code>long</code></td><td>8 bytes / 64-bit</td><td>0L</td><td>-9.2 × 10¹⁸</td><td>9.2 × 10¹⁸</td><td><code>long l = 99L;</code></td></tr>
+          <tr><td><code>float</code></td><td>4 bytes / 32-bit</td><td>0.0f</td><td>~1.4E-45</td><td>~3.4E+38</td><td><code>float f = 3.14f;</code></td></tr>
+          <tr><td><code>double</code></td><td>8 bytes / 64-bit</td><td>0.0d</td><td>~4.9E-324</td><td>~1.8E+308</td><td><code>double d = 3.14;</code></td></tr>
+          <tr><td><code>char</code></td><td>2 bytes / 16-bit</td><td>'\u0000'</td><td>0 (Unicode)</td><td>65535</td><td><code>char c = 'A';</code></td></tr>
+          <tr><td><code>boolean</code></td><td>JVM-dependent</td><td>false</td><td>—</td><td>—</td><td><code>boolean b = true;</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Literal Suffixes</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="ty">long</span>   <span class="an">bigNum</span>  <span class="op">=</span> <span class="nu">9_000_000_000L</span><span class="pu">;</span>   <span class="cm">// L or l suffix required</span>
+<span class="ty">float</span>  <span class="an">price</span>   <span class="op">=</span> <span class="nu">19.99f</span><span class="pu">;</span>           <span class="cm">// F or f suffix required</span>
+<span class="ty">double</span> <span class="an">pi</span>      <span class="op">=</span> <span class="nu">3.14159d</span><span class="pu">;</span>         <span class="cm">// d is optional (default)</span>
+<span class="ty">int</span>    <span class="an">hex</span>     <span class="op">=</span> <span class="nu">0xFF</span><span class="pu">;</span>             <span class="cm">// hexadecimal = 255</span>
+<span class="ty">int</span>    <span class="an">binary</span>  <span class="op">=</span> <span class="nu">0b1010</span><span class="pu">;</span>           <span class="cm">// binary literal = 10</span>
+<span class="ty">int</span>    <span class="an">million</span> <span class="op">=</span> <span class="nu">1_000_000</span><span class="pu">;</span>        <span class="cm">// underscores for readability</span></code></pre>
+
+    <h2>Type Casting</h2>
+    <p>Moving a value between types can be <em>widening</em> (safe, automatic) or <em>narrowing</em> (potentially lossy, explicit).</p>
+
+    <div class="ascii">
+  Widening (Implicit / Automatic — no data loss)
+  byte ──▶ short ──▶ int ──▶ long ──▶ float ──▶ double
+                     │
+                    char ──▶ int
+
+  Narrowing (Explicit / Manual — possible data loss)
+  double ──▶ float ──▶ long ──▶ int ──▶ short ──▶ byte
+    </div>
+
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cm">// Widening — automatic, safe</span>
+<span class="ty">int</span>    <span class="an">i</span> <span class="op">=</span> <span class="nu">42</span><span class="pu">;</span>
+<span class="ty">double</span> <span class="an">d</span> <span class="op">=</span> <span class="an">i</span><span class="pu">;</span>    <span class="cm">// 42.0 — no cast needed</span>
+
+<span class="cm">// Narrowing — explicit cast, may lose data</span>
+<span class="ty">double</span> <span class="an">pi</span> <span class="op">=</span> <span class="nu">3.99</span><span class="pu">;</span>
+<span class="ty">int</span>    <span class="an">n</span>  <span class="op">=</span> <span class="pu">(</span><span class="ty">int</span><span class="pu">)</span> <span class="an">pi</span><span class="pu">;</span>    <span class="cm">// n = 3 (truncated, not rounded!)</span>
+
+<span class="cm">// Char ↔ int</span>
+<span class="ty">char</span>   <span class="an">c</span> <span class="op">=</span> <span class="st">'A'</span><span class="pu">;</span>
+<span class="ty">int</span>    <span class="an">code</span> <span class="op">=</span> <span class="an">c</span><span class="pu">;</span>   <span class="cm">// 65 — widening</span>
+<span class="ty">char</span>   <span class="an">back</span> <span class="op">=</span> <span class="pu">(</span><span class="ty">char</span><span class="pu">)</span> <span class="nu">66</span><span class="pu">;</span>  <span class="cm">// 'B' — narrowing</span></code></pre>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <p>Narrowing truncates, it does not round. <code>(int) 3.99 == 3</code>, not 4. For rounding use <code>Math.round()</code>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 4 — OPERATORS & PRECEDENCE
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-4" id="s4">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">04</span>Operators &amp; Precedence</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <p>Java operators are evaluated according to a strict precedence table. Higher precedence operators bind more tightly to their operands.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Precedence</th><th>Operator(s)</th><th>Type</th><th>Associativity</th></tr></thead>
+        <tbody>
+          <tr><td>1 (highest)</td><td><code>() [] . ::</code></td><td>Postfix / member access</td><td>Left-to-right</td></tr>
+          <tr><td>2</td><td><code>++ -- ! ~ + - (cast) new</code></td><td>Unary / prefix</td><td>Right-to-left</td></tr>
+          <tr><td>3</td><td><code>* / %</code></td><td>Multiplicative</td><td>Left-to-right</td></tr>
+          <tr><td>4</td><td><code>+ -</code></td><td>Additive</td><td>Left-to-right</td></tr>
+          <tr><td>5</td><td><code>&lt;&lt; &gt;&gt; &gt;&gt;&gt;</code></td><td>Shift</td><td>Left-to-right</td></tr>
+          <tr><td>6</td><td><code>&lt; &gt; &lt;= &gt;= instanceof</code></td><td>Relational</td><td>Left-to-right</td></tr>
+          <tr><td>7</td><td><code>== !=</code></td><td>Equality</td><td>Left-to-right</td></tr>
+          <tr><td>8</td><td><code>&amp;</code></td><td>Bitwise AND</td><td>Left-to-right</td></tr>
+          <tr><td>9</td><td><code>^</code></td><td>Bitwise XOR</td><td>Left-to-right</td></tr>
+          <tr><td>10</td><td><code>|</code></td><td>Bitwise OR</td><td>Left-to-right</td></tr>
+          <tr><td>11</td><td><code>&amp;&amp;</code></td><td>Logical AND</td><td>Left-to-right</td></tr>
+          <tr><td>12</td><td><code>||</code></td><td>Logical OR</td><td>Left-to-right</td></tr>
+          <tr><td>13</td><td><code>? :</code></td><td>Ternary</td><td>Right-to-left</td></tr>
+          <tr><td>14 (lowest)</td><td><code>= += -= *= /= %= &amp;= ^= |= &lt;&lt;= &gt;&gt;= &gt;&gt;&gt;=</code></td><td>Assignment</td><td>Right-to-left</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Practical Examples</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cm">// Precedence in action</span>
+<span class="ty">int</span> <span class="an">a</span> <span class="op">=</span> <span class="nu">2</span> <span class="op">+</span> <span class="nu">3</span> <span class="op">*</span> <span class="nu">4</span><span class="pu">;</span>       <span class="cm">// = 14, not 20  (* before +)</span>
+<span class="ty">int</span> <span class="an">b</span> <span class="op">=</span> <span class="pu">(</span><span class="nu">2</span> <span class="op">+</span> <span class="nu">3</span><span class="pu">)</span> <span class="op">*</span> <span class="nu">4</span><span class="pu">;</span>    <span class="cm">// = 20          (parens override)</span>
+
+<span class="cm">// Short-circuit evaluation</span>
+<span class="ty">boolean</span> <span class="an">x</span> <span class="op">=</span> <span class="kw">false</span> <span class="op">&amp;&amp;</span> <span class="fn">riskyMethod</span><span class="pu">();</span>  <span class="cm">// riskyMethod() NEVER called</span>
+<span class="ty">boolean</span> <span class="an">y</span> <span class="op">=</span> <span class="kw">true</span>  <span class="op">||</span> <span class="fn">riskyMethod</span><span class="pu">();</span>  <span class="cm">// riskyMethod() NEVER called</span>
+
+<span class="cm">// Ternary operator</span>
+<span class="ty">int</span> <span class="an">max</span> <span class="op">=</span> <span class="pu">(</span><span class="an">a</span> <span class="op">&gt;</span> <span class="an">b</span><span class="pu">)</span> <span class="op">?</span> <span class="an">a</span> <span class="op">:</span> <span class="an">b</span><span class="pu">;</span>
+
+<span class="cm">// Compound assignment</span>
+<span class="ty">int</span> <span class="an">n</span> <span class="op">=</span> <span class="nu">10</span><span class="pu">;</span>
+<span class="an">n</span> <span class="op">+=</span> <span class="nu">5</span><span class="pu">;</span>   <span class="cm">// n = 15</span>
+<span class="an">n</span> <span class="op">*=</span> <span class="nu">2</span><span class="pu">;</span>   <span class="cm">// n = 30</span>
+
+<span class="cm">// Pre vs Post increment</span>
+<span class="ty">int</span> <span class="an">i</span> <span class="op">=</span> <span class="nu">5</span><span class="pu">;</span>
+<span class="ty">int</span> <span class="an">pre</span>  <span class="op">=</span> <span class="op">++</span><span class="an">i</span><span class="pu">;</span>   <span class="cm">// i becomes 6, pre = 6</span>
+<span class="ty">int</span> <span class="an">post</span> <span class="op">=</span> <span class="an">i</span><span class="op">++</span><span class="pu">;</span>   <span class="cm">// post = 6, then i becomes 7</span>
+
+<span class="cm">// Bitwise shift (fast powers of 2)</span>
+<span class="ty">int</span> <span class="an">x2</span> <span class="op">=</span> <span class="nu">1</span> <span class="op">&lt;&lt;</span> <span class="nu">3</span><span class="pu">;</span>   <span class="cm">// 1 * 2^3 = 8</span>
+<span class="ty">int</span> <span class="an">d2</span> <span class="op">=</span> <span class="nu">16</span> <span class="op">&gt;&gt;</span> <span class="nu">2</span><span class="pu">;</span>  <span class="cm">// 16 / 2^2 = 4</span></code></pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 5 — STRINGS
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-5" id="s5">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">05</span>Strings</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <p><code>String</code> is a class in Java (not a primitive), but it gets special treatment. Strings are <em>immutable</em> — once created, the character sequence they contain cannot be changed.</p>
+
+    <h2>String Pool</h2>
+    <p>The JVM maintains a special area of the heap called the <strong>String Constant Pool</strong>. String literals are interned there — two identical literals point to the same object, saving memory.</p>
+
+    <div class="ascii">
+String Pool (in Heap)
+┌─────────────────────────────────────┐
+│  ┌──────────┐    ┌──────────────┐   │
+│  │ "hello"  │    │  "world"     │   │
+│  └─────┬────┘    └──────┬───────┘   │
+└────────┼────────────────┼───────────┘
+         │                │
+String a─┘    String b────┤   (a == b is TRUE)
+String c (new String("hello")) ← outside pool, == FALSE
+    </div>
+
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="ty">String</span> <span class="an">a</span> <span class="op">=</span> <span class="st">"hello"</span><span class="pu">;</span>
+<span class="ty">String</span> <span class="an">b</span> <span class="op">=</span> <span class="st">"hello"</span><span class="pu">;</span>
+<span class="ty">String</span> <span class="an">c</span> <span class="op">=</span> <span class="kw">new</span> <span class="cl">String</span><span class="pu">(</span><span class="st">"hello"</span><span class="pu">);</span>
+
+<span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">a</span> <span class="op">==</span> <span class="an">b</span><span class="pu">);</span>         <span class="cm">// true  (same pool object)</span>
+<span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">a</span> <span class="op">==</span> <span class="an">c</span><span class="pu">);</span>         <span class="cm">// false (new creates on heap)</span>
+<span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">a</span><span class="pu">.</span><span class="fn">equals</span><span class="pu">(</span><span class="an">c</span><span class="pu">));</span>    <span class="cm">// true  (compares content)</span>
+<span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">c</span><span class="pu">.</span><span class="fn">intern</span><span class="pu">()</span> <span class="op">==</span> <span class="an">a</span><span class="pu">);</span> <span class="cm">// true  (intern() looks in pool)</span></code></pre>
+
+    <div class="callout danger">
+      <span class="callout-icon">🚨</span>
+      <p>Always use <code>.equals()</code> to compare String <em>content</em>. Using <code>==</code> compares object references and will give you bugs with heap-allocated strings.</p>
+    </div>
+
+    <h2>Immutability</h2>
+    <p>When you "modify" a String, Java creates a new String object. The original is unchanged. This is thread-safe by nature but can be expensive in loops.</p>
+
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="ty">String</span> <span class="an">s</span> <span class="op">=</span> <span class="st">"Hello"</span><span class="pu">;</span>
+<span class="an">s</span>         <span class="op">=</span> <span class="an">s</span> <span class="op">+</span> <span class="st">" World"</span><span class="pu">;</span>
+<span class="cm">// A NEW String "Hello World" is created.</span>
+<span class="cm">// "Hello" still exists in memory (until GC).</span></code></pre>
+
+    <h2>Common String Methods</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>length()</code></td><td>int</td><td>Number of characters</td></tr>
+          <tr><td><code>charAt(i)</code></td><td>char</td><td>Character at index i</td></tr>
+          <tr><td><code>substring(s,e)</code></td><td>String</td><td>From index s up to (not including) e</td></tr>
+          <tr><td><code>indexOf(str)</code></td><td>int</td><td>First occurrence index, or -1</td></tr>
+          <tr><td><code>contains(str)</code></td><td>boolean</td><td>Does it contain the sequence?</td></tr>
+          <tr><td><code>toUpperCase()</code></td><td>String</td><td>All caps</td></tr>
+          <tr><td><code>toLowerCase()</code></td><td>String</td><td>All lowercase</td></tr>
+          <tr><td><code>trim()</code></td><td>String</td><td>Remove leading/trailing whitespace</td></tr>
+          <tr><td><code>strip()</code></td><td>String</td><td>Unicode-aware trim (Java 11+)</td></tr>
+          <tr><td><code>replace(a,b)</code></td><td>String</td><td>Replace all occurrences</td></tr>
+          <tr><td><code>split(regex)</code></td><td>String[]</td><td>Split by regex pattern</td></tr>
+          <tr><td><code>startsWith(s)</code></td><td>boolean</td><td>Begins with s?</td></tr>
+          <tr><td><code>endsWith(s)</code></td><td>boolean</td><td>Ends with s?</td></tr>
+          <tr><td><code>isEmpty()</code></td><td>boolean</td><td>length() == 0?</td></tr>
+          <tr><td><code>isBlank()</code></td><td>boolean</td><td>Empty or only whitespace? (Java 11+)</td></tr>
+          <tr><td><code>compareTo(s)</code></td><td>int</td><td>Lexicographic comparison</td></tr>
+          <tr><td><code>format(fmt,…)</code></td><td>String</td><td>Static: printf-style formatting</td></tr>
+          <tr><td><code>valueOf(obj)</code></td><td>String</td><td>Static: convert any type to String</td></tr>
+          <tr><td><code>toCharArray()</code></td><td>char[]</td><td>Convert to character array</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>StringBuilder vs String</h2>
+    <div class="two-col">
+      <div class="col-box">
+        <h4 style="color:var(--red)">❌ Inefficient (in loops)</h4>
+        <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="ty">String</span> <span class="an">result</span> <span class="op">=</span> <span class="st">""</span><span class="pu">;</span>
+<span class="kw">for</span> <span class="pu">(</span><span class="ty">int</span> <span class="an">i</span> <span class="op">=</span> <span class="nu">0</span><span class="pu">;</span> <span class="an">i</span> <span class="op">&lt;</span> <span class="nu">1000</span><span class="pu">;</span> <span class="an">i</span><span class="op">++</span><span class="pu">)</span> <span class="pu">{</span>
+    <span class="an">result</span> <span class="op">+=</span> <span class="an">i</span><span class="pu">;</span>
+    <span class="cm">// 1000 new String objects!</span>
+<span class="pu">}</span></code></pre>
+      </div>
+      <div class="col-box">
+        <h4 style="color:var(--green)">✅ Efficient (mutable buffer)</h4>
+        <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cl">StringBuilder</span> <span class="an">sb</span> <span class="op">=</span> <span class="kw">new</span> <span class="cl">StringBuilder</span><span class="pu">();</span>
+<span class="kw">for</span> <span class="pu">(</span><span class="ty">int</span> <span class="an">i</span> <span class="op">=</span> <span class="nu">0</span><span class="pu">;</span> <span class="an">i</span> <span class="op">&lt;</span> <span class="nu">1000</span><span class="pu">;</span> <span class="an">i</span><span class="op">++</span><span class="pu">)</span> <span class="pu">{</span>
+    <span class="an">sb</span><span class="pu">.</span><span class="fn">append</span><span class="pu">(</span><span class="an">i</span><span class="pu">);</span>
+<span class="pu">}</span>
+<span class="ty">String</span> <span class="an">result</span> <span class="op">=</span> <span class="an">sb</span><span class="pu">.</span><span class="fn">toString</span><span class="pu">();</span></code></pre>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <p><strong>StringBuilder</strong> is not thread-safe (faster). <strong>StringBuffer</strong> is thread-safe (all methods synchronized). In single-threaded code, always prefer <code>StringBuilder</code>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 6 — OOP CONCEPTS
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-6" id="s6">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">06</span>OOP Concepts</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <h2>Methods &amp; Overloading</h2>
+    <p>Methods are functions that belong to a class. <strong>Method Overloading</strong> allows multiple methods with the same name but different parameter lists (resolved at compile time).</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">class</span> <span class="cl">Calculator</span> <span class="pu">{</span>
+    <span class="ty">int</span>    <span class="fn">add</span><span class="pu">(</span><span class="ty">int</span> <span class="an">a</span><span class="pu">,</span> <span class="ty">int</span> <span class="an">b</span><span class="pu">)</span>          <span class="pu">{</span> <span class="kw">return</span> <span class="an">a</span> <span class="op">+</span> <span class="an">b</span><span class="pu">;</span> <span class="pu">}</span>
+    <span class="ty">double</span> <span class="fn">add</span><span class="pu">(</span><span class="ty">double</span> <span class="an">a</span><span class="pu">,</span> <span class="ty">double</span> <span class="an">b</span><span class="pu">)</span>  <span class="pu">{</span> <span class="kw">return</span> <span class="an">a</span> <span class="op">+</span> <span class="an">b</span><span class="pu">;</span> <span class="pu">}</span>
+    <span class="ty">int</span>    <span class="fn">add</span><span class="pu">(</span><span class="ty">int</span> <span class="an">a</span><span class="pu">,</span> <span class="ty">int</span> <span class="an">b</span><span class="pu">,</span> <span class="ty">int</span> <span class="an">c</span><span class="pu">)</span>  <span class="pu">{</span> <span class="kw">return</span> <span class="an">a</span> <span class="op">+</span> <span class="an">b</span> <span class="op">+</span> <span class="an">c</span><span class="pu">;</span> <span class="pu">}</span>
+    <span class="cm">// Return type alone cannot differentiate overloads!</span>
+<span class="pu">}</span></code></pre>
+
+    <h2>Constructors</h2>
+    <p>A constructor initialises an object. It has the same name as the class and no return type.</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">class</span> <span class="cl">Person</span> <span class="pu">{</span>
+    <span class="ty">String</span> <span class="an">name</span><span class="pu">;</span>
+    <span class="ty">int</span>    <span class="an">age</span><span class="pu">;</span>
+
+    <span class="cm">// 1. Default constructor (no params)</span>
+    <span class="cl">Person</span><span class="pu">()</span> <span class="pu">{</span>
+        <span class="kw">this</span><span class="pu">.</span><span class="an">name</span> <span class="op">=</span> <span class="st">"Unknown"</span><span class="pu">;</span>
+        <span class="kw">this</span><span class="pu">.</span><span class="an">age</span>  <span class="op">=</span> <span class="nu">0</span><span class="pu">;</span>
+    <span class="pu">}</span>
+
+    <span class="cm">// 2. Parameterized constructor</span>
+    <span class="cl">Person</span><span class="pu">(</span><span class="ty">String</span> <span class="an">name</span><span class="pu">,</span> <span class="ty">int</span> <span class="an">age</span><span class="pu">)</span> <span class="pu">{</span>
+        <span class="kw">this</span><span class="pu">.</span><span class="an">name</span> <span class="op">=</span> <span class="an">name</span><span class="pu">;</span>   <span class="cm">// 'this' disambiguates</span>
+        <span class="kw">this</span><span class="pu">.</span><span class="an">age</span>  <span class="op">=</span> <span class="an">age</span><span class="pu">;</span>
+    <span class="pu">}</span>
+
+    <span class="cm">// 3. Copy constructor</span>
+    <span class="cl">Person</span><span class="pu">(</span><span class="cl">Person</span> <span class="an">other</span><span class="pu">)</span> <span class="pu">{</span>
+        <span class="kw">this</span><span class="pu">.</span><span class="an">name</span> <span class="op">=</span> <span class="an">other</span><span class="pu">.</span><span class="an">name</span><span class="pu">;</span>
+        <span class="kw">this</span><span class="pu">.</span><span class="an">age</span>  <span class="op">=</span> <span class="an">other</span><span class="pu">.</span><span class="an">age</span><span class="pu">;</span>
+    <span class="pu">}</span>
+<span class="pu">}</span></code></pre>
+
+    <h2>super and this</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">class</span> <span class="cl">Animal</span> <span class="pu">{</span>
+    <span class="ty">String</span> <span class="an">sound</span> <span class="op">=</span> <span class="st">"..."</span><span class="pu">;</span>
+    <span class="cl">Animal</span><span class="pu">(</span><span class="ty">String</span> <span class="an">s</span><span class="pu">)</span> <span class="pu">{</span> <span class="kw">this</span><span class="pu">.</span><span class="an">sound</span> <span class="op">=</span> <span class="an">s</span><span class="pu">;</span> <span class="pu">}</span>
+    <span class="ty">void</span> <span class="fn">speak</span><span class="pu">()</span> <span class="pu">{</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">sound</span><span class="pu">);</span> <span class="pu">}</span>
+<span class="pu">}</span>
+
+<span class="kw">class</span> <span class="cl">Dog</span> <span class="kw">extends</span> <span class="cl">Animal</span> <span class="pu">{</span>
+    <span class="ty">String</span> <span class="an">breed</span><span class="pu">;</span>
+
+    <span class="cl">Dog</span><span class="pu">(</span><span class="ty">String</span> <span class="an">breed</span><span class="pu">)</span> <span class="pu">{</span>
+        <span class="kw">super</span><span class="pu">(</span><span class="st">"Woof"</span><span class="pu">);</span>       <span class="cm">// must be first statement — calls parent ctor</span>
+        <span class="kw">this</span><span class="pu">.</span><span class="an">breed</span> <span class="op">=</span> <span class="an">breed</span><span class="pu">;</span>  <span class="cm">// 'this' refers to current instance</span>
+    <span class="pu">}</span>
+
+    <span class="an">@Override</span>
+    <span class="ty">void</span> <span class="fn">speak</span><span class="pu">()</span> <span class="pu">{</span>
+        <span class="kw">super</span><span class="pu">.</span><span class="fn">speak</span><span class="pu">();</span>       <span class="cm">// call parent method</span>
+        <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"I am a "</span> <span class="op">+</span> <span class="kw">this</span><span class="pu">.</span><span class="an">breed</span><span class="pu">);</span>
+    <span class="pu">}</span>
+<span class="pu">}</span></code></pre>
+
+    <h2>The Four Pillars of OOP</h2>
+    <div class="two-col">
+      <div class="col-box">
+        <h4 style="color:var(--blue)">🔒 Encapsulation</h4>
+        <p style="font-size:0.83rem;color:var(--text2)">Bundle data and methods together. Hide internal state with <code>private</code> fields and expose via <code>public</code> getters/setters. Protects invariants.</p>
+      </div>
+      <div class="col-box">
+        <h4 style="color:var(--green)">🧬 Inheritance</h4>
+        <p style="font-size:0.83rem;color:var(--text2)">A child class (<code>extends</code>) inherits fields and methods from a parent. Promotes code reuse. Java supports <em>single</em> class inheritance only.</p>
+      </div>
+      <div class="col-box">
+        <h4 style="color:var(--yellow)">🎭 Polymorphism</h4>
+        <p style="font-size:0.83rem;color:var(--text2)">One interface, many forms. Overloading (compile-time) and overriding (runtime). A parent reference can point to a child object.</p>
+      </div>
+      <div class="col-box">
+        <h4 style="color:var(--purple)">🎨 Abstraction</h4>
+        <p style="font-size:0.83rem;color:var(--text2)">Hide complexity, show only essentials. Achieved via abstract classes and interfaces. Lets you program to a contract, not an implementation.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 7 — KEY KEYWORDS
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-7" id="s7">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">07</span>Key Keywords — static &amp; final</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <h2>static</h2>
+    <p><code>static</code> means "belonging to the class, not any instance". Shared across all objects of that class.</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">class</span> <span class="cl">Counter</span> <span class="pu">{</span>
+    <span class="cm">// Static variable — shared by all instances</span>
+    <span class="kw">private</span> <span class="kw">static</span> <span class="ty">int</span> <span class="an">count</span> <span class="op">=</span> <span class="nu">0</span><span class="pu">;</span>
+
+    <span class="cm">// Static block — runs once when class is first loaded</span>
+    <span class="kw">static</span> <span class="pu">{</span>
+        <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Counter class loaded!"</span><span class="pu">);</span>
+        <span class="an">count</span> <span class="op">=</span> <span class="nu">100</span><span class="pu">;</span>  <span class="cm">// can set initial value here</span>
+    <span class="pu">}</span>
+
+    <span class="cl">Counter</span><span class="pu">()</span> <span class="pu">{</span> <span class="an">count</span><span class="op">++</span><span class="pu">;</span> <span class="pu">}</span>
+
+    <span class="cm">// Static method — called on class, not instance</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="ty">int</span> <span class="fn">getCount</span><span class="pu">()</span> <span class="pu">{</span> <span class="kw">return</span> <span class="an">count</span><span class="pu">;</span> <span class="pu">}</span>
+<span class="pu">}</span>
+
+<span class="cm">// Usage</span>
+<span class="kw">new</span> <span class="cl">Counter</span><span class="pu">();</span>
+<span class="kw">new</span> <span class="cl">Counter</span><span class="pu">();</span>
+<span class="cl">Counter</span><span class="pu">.</span><span class="fn">getCount</span><span class="pu">();</span>  <span class="cm">// 102</span></code></pre>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <p>Static methods cannot access instance (<code>this</code>) fields or methods directly. They only see other static members.</p>
+    </div>
+
+    <h2>final</h2>
+    <p><code>final</code> means "this cannot be changed after initialisation".</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cm">// 1. Final variable — constant value, must be assigned once</span>
+<span class="kw">final</span> <span class="ty">double</span> <span class="an">PI</span> <span class="op">=</span> <span class="nu">3.14159265</span><span class="pu">;</span>
+<span class="cm">// PI = 3; ← compile error!</span>
+
+<span class="cm">// 2. Final method — cannot be overridden in subclass</span>
+<span class="kw">class</span> <span class="cl">Base</span> <span class="pu">{</span>
+    <span class="kw">public</span> <span class="kw">final</span> <span class="ty">void</span> <span class="fn">seal</span><span class="pu">()</span> <span class="pu">{</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Cannot override me"</span><span class="pu">);</span> <span class="pu">}</span>
+<span class="pu">}</span>
+
+<span class="cm">// 3. Final class — cannot be extended (subclassed)</span>
+<span class="kw">final</span> <span class="kw">class</span> <span class="cl">ImmutablePoint</span> <span class="pu">{</span>
+    <span class="kw">final</span> <span class="ty">int</span> <span class="an">x</span><span class="pu">,</span> <span class="an">y</span><span class="pu">;</span>
+    <span class="cl">ImmutablePoint</span><span class="pu">(</span><span class="ty">int</span> <span class="an">x</span><span class="pu">,</span> <span class="ty">int</span> <span class="an">y</span><span class="pu">)</span> <span class="pu">{</span> <span class="kw">this</span><span class="pu">.</span><span class="an">x</span> <span class="op">=</span> <span class="an">x</span><span class="pu">;</span> <span class="kw">this</span><span class="pu">.</span><span class="an">y</span> <span class="op">=</span> <span class="an">y</span><span class="pu">;</span> <span class="pu">}</span>
+<span class="pu">}</span>
+<span class="cm">// class Sub extends ImmutablePoint {} ← compile error!</span>
+
+<span class="cm">// Static + final = class constant (convention: UPPER_SNAKE_CASE)</span>
+<span class="kw">public</span> <span class="kw">static</span> <span class="kw">final</span> <span class="ty">int</span> <span class="an">MAX_SIZE</span> <span class="op">=</span> <span class="nu">1024</span><span class="pu">;</span></code></pre>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ️</span>
+      <p><strong>Note:</strong> <code>final</code> on a reference variable means the <em>reference</em> cannot be reassigned, but the object it points to can still be mutated (e.g., adding to a <code>final List</code> is allowed).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 8 — POLYMORPHISM & ABSTRACTION
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-8" id="s8">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">08</span>Polymorphism &amp; Abstraction</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <div class="two-col">
+      <div class="col-box">
+        <h4 style="color:var(--blue)">Compile-time Polymorphism</h4>
+        <p style="font-size:0.82rem;color:var(--text2)">Also called <strong>static dispatch</strong>. Resolved by compiler based on the method signature (parameter types/count).</p>
+        <ul style="font-size:0.82rem">
+          <li>Method overloading</li>
+          <li>Operator overloading (limited in Java)</li>
+        </ul>
+      </div>
+      <div class="col-box">
+        <h4 style="color:var(--purple)">Runtime Polymorphism</h4>
+        <p style="font-size:0.82rem;color:var(--text2)">Also called <strong>dynamic dispatch</strong>. The JVM decides at runtime which method to call based on the actual object type.</p>
+        <ul style="font-size:0.82rem">
+          <li>Method overriding</li>
+          <li>Requires inheritance + <code>@Override</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">class</span> <span class="cl">Shape</span> <span class="pu">{</span>
+    <span class="ty">double</span> <span class="fn">area</span><span class="pu">()</span> <span class="pu">{</span> <span class="kw">return</span> <span class="nu">0</span><span class="pu">;</span> <span class="pu">}</span>
+<span class="pu">}</span>
+<span class="kw">class</span> <span class="cl">Circle</span> <span class="kw">extends</span> <span class="cl">Shape</span> <span class="pu">{</span>
+    <span class="ty">double</span> <span class="an">r</span><span class="pu">;</span>
+    <span class="cl">Circle</span><span class="pu">(</span><span class="ty">double</span> <span class="an">r</span><span class="pu">)</span> <span class="pu">{</span> <span class="kw">this</span><span class="pu">.</span><span class="an">r</span> <span class="op">=</span> <span class="an">r</span><span class="pu">;</span> <span class="pu">}</span>
+    <span class="an">@Override</span> <span class="ty">double</span> <span class="fn">area</span><span class="pu">()</span> <span class="pu">{</span> <span class="kw">return</span> <span class="cl">Math</span><span class="pu">.</span><span class="an">PI</span> <span class="op">*</span> <span class="an">r</span> <span class="op">*</span> <span class="an">r</span><span class="pu">;</span> <span class="pu">}</span>
+<span class="pu">}</span>
+<span class="kw">class</span> <span class="cl">Square</span> <span class="kw">extends</span> <span class="cl">Shape</span> <span class="pu">{</span>
+    <span class="ty">double</span> <span class="an">s</span><span class="pu">;</span>
+    <span class="cl">Square</span><span class="pu">(</span><span class="ty">double</span> <span class="an">s</span><span class="pu">)</span> <span class="pu">{</span> <span class="kw">this</span><span class="pu">.</span><span class="an">s</span> <span class="op">=</span> <span class="an">s</span><span class="pu">;</span> <span class="pu">}</span>
+    <span class="an">@Override</span> <span class="ty">double</span> <span class="fn">area</span><span class="pu">()</span> <span class="pu">{</span> <span class="kw">return</span> <span class="an">s</span> <span class="op">*</span> <span class="an">s</span><span class="pu">;</span> <span class="pu">}</span>
+<span class="pu">}</span>
+
+<span class="cm">// Runtime polymorphism in action:</span>
+<span class="cl">Shape</span><span class="pu">[]</span> <span class="an">shapes</span> <span class="op">=</span> <span class="pu">{</span><span class="kw">new</span> <span class="cl">Circle</span><span class="pu">(</span><span class="nu">5</span><span class="pu">),</span> <span class="kw">new</span> <span class="cl">Square</span><span class="pu">(</span><span class="nu">4</span><span class="pu">)</span><span class="pu">};</span>
+<span class="kw">for</span> <span class="pu">(</span><span class="cl">Shape</span> <span class="an">sh</span> <span class="op">:</span> <span class="an">shapes</span><span class="pu">)</span>
+    <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">sh</span><span class="pu">.</span><span class="fn">area</span><span class="pu">());</span>  <span class="cm">// JVM picks correct area() at runtime</span></code></pre>
+
+    <h2>Abstract Classes</h2>
+    <p>An <code>abstract</code> class cannot be instantiated. It can have a mix of fully implemented and abstract (signature-only) methods, forcing subclasses to provide implementations.</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">abstract</span> <span class="kw">class</span> <span class="cl">Vehicle</span> <span class="pu">{</span>
+    <span class="ty">String</span> <span class="an">brand</span><span class="pu">;</span>
+
+    <span class="cm">// Concrete method — inherited as-is</span>
+    <span class="ty">void</span> <span class="fn">start</span><span class="pu">()</span> <span class="pu">{</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">brand</span> <span class="op">+</span> <span class="st">" starting..."</span><span class="pu">);</span> <span class="pu">}</span>
+
+    <span class="cm">// Abstract method — MUST be overridden by subclass</span>
+    <span class="kw">abstract</span> <span class="ty">void</span> <span class="fn">fuelType</span><span class="pu">();</span>
+<span class="pu">}</span>
+
+<span class="kw">class</span> <span class="cl">Car</span> <span class="kw">extends</span> <span class="cl">Vehicle</span> <span class="pu">{</span>
+    <span class="an">@Override</span> <span class="ty">void</span> <span class="fn">fuelType</span><span class="pu">()</span> <span class="pu">{</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Petrol"</span><span class="pu">);</span> <span class="pu">}</span>
+<span class="pu">}</span>
+<span class="cm">// new Vehicle(); ← compile error!</span>
+<span class="cl">Vehicle</span> <span class="an">v</span> <span class="op">=</span> <span class="kw">new</span> <span class="cl">Car</span><span class="pu">();</span>  <span class="cm">// OK via polymorphism</span></code></pre>
+
+    <h2>When to use Abstract Class?</h2>
+    <ul>
+      <li>You want to share code (concrete methods) between related classes.</li>
+      <li>You need constructors, instance fields, or <code>protected</code> members.</li>
+      <li>You're modelling an "is-a" relationship with a partial implementation.</li>
+      <li>You want to enforce a template pattern (some methods defined, some deferred).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 9 — INTERFACES
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-9" id="s9">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">09</span>Interfaces</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <p>An interface is a <em>pure contract</em>. It defines what a class can do, not how it does it. A class <strong>implements</strong> an interface and must provide implementations for all abstract methods.</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">interface</span> <span class="cl">Drawable</span> <span class="pu">{</span>
+    <span class="cm">// 1. Abstract method (implicit public abstract)</span>
+    <span class="ty">void</span> <span class="fn">draw</span><span class="pu">();</span>
+
+    <span class="cm">// 2. Default method (Java 8+) — provides a default implementation</span>
+    <span class="kw">default</span> <span class="ty">void</span> <span class="fn">describe</span><span class="pu">()</span> <span class="pu">{</span>
+        <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"I am drawable!"</span><span class="pu">);</span>
+    <span class="pu">}</span>
+
+    <span class="cm">// 3. Static method (Java 8+) — called on the interface itself</span>
+    <span class="kw">static</span> <span class="ty">void</span> <span class="fn">info</span><span class="pu">()</span> <span class="pu">{</span>
+        <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Drawable interface v1.0"</span><span class="pu">);</span>
+    <span class="pu">}</span>
+
+    <span class="cm">// 4. Constant (implicit public static final)</span>
+    <span class="ty">int</span> <span class="an">VERSION</span> <span class="op">=</span> <span class="nu">1</span><span class="pu">;</span>
+<span class="pu">}</span>
+
+<span class="cm">// Multiple interface implementation</span>
+<span class="kw">interface</span> <span class="cl">Resizable</span> <span class="pu">{</span> <span class="ty">void</span> <span class="fn">resize</span><span class="pu">(</span><span class="ty">double</span> <span class="an">factor</span><span class="pu">);</span> <span class="pu">}</span>
+
+<span class="kw">class</span> <span class="cl">Rectangle</span> <span class="kw">implements</span> <span class="cl">Drawable</span><span class="pu">,</span> <span class="cl">Resizable</span> <span class="pu">{</span>
+    <span class="ty">double</span> <span class="an">w</span><span class="pu">,</span> <span class="an">h</span><span class="pu">;</span>
+    <span class="an">@Override</span> <span class="kw">public</span> <span class="ty">void</span> <span class="fn">draw</span><span class="pu">()</span>                    <span class="pu">{</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"□"</span><span class="pu">);</span> <span class="pu">}</span>
+    <span class="an">@Override</span> <span class="kw">public</span> <span class="ty">void</span> <span class="fn">resize</span><span class="pu">(</span><span class="ty">double</span> <span class="an">f</span><span class="pu">)</span>           <span class="pu">{</span> <span class="an">w</span> <span class="op">*=</span> <span class="an">f</span><span class="pu">;</span> <span class="an">h</span> <span class="op">*=</span> <span class="an">f</span><span class="pu">;</span> <span class="pu">}</span>
+<span class="pu">}</span></code></pre>
+
+    <h2>Interface vs Abstract Class</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Feature</th><th>Interface</th><th>Abstract Class</th></tr></thead>
+        <tbody>
+          <tr><td>Instantiate</td><td>❌ No</td><td>❌ No</td></tr>
+          <tr><td>Multiple inheritance</td><td>✅ Yes (implement many)</td><td>❌ No (extend one)</td></tr>
+          <tr><td>Constructor</td><td>❌ No</td><td>✅ Yes</td></tr>
+          <tr><td>Instance fields</td><td>❌ No (only constants)</td><td>✅ Yes</td></tr>
+          <tr><td>Default methods</td><td>✅ Yes (Java 8+)</td><td>✅ Yes (concrete methods)</td></tr>
+          <tr><td>Access modifiers on methods</td><td>public only</td><td>Any (public/protected/private)</td></tr>
+          <tr><td>Use for</td><td>"Can-do" capability contracts</td><td>"Is-a" partial implementation</td></tr>
+          <tr><td>Example</td><td><code>Serializable, Runnable</code></td><td><code>AbstractList, HttpServlet</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <p><strong>Diamond Problem Solution:</strong> If two interfaces have the same <code>default</code> method, the implementing class must override it to resolve the ambiguity — Java forces an explicit choice.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 10 — INNER CLASSES
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-10" id="s10">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">10</span>Inner Classes</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <p>Java allows defining a class inside another class. There are 4 types, each with different scoping rules.</p>
+
+    <h2>1. Member (Non-static) Inner Class</h2>
+    <p>Defined inside a class, not in a method. Has access to all outer class members (even private). Requires an outer instance to create.</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">class</span> <span class="cl">Outer</span> <span class="pu">{</span>
+    <span class="kw">private</span> <span class="ty">int</span> <span class="an">x</span> <span class="op">=</span> <span class="nu">10</span><span class="pu">;</span>
+
+    <span class="kw">class</span> <span class="cl">Inner</span> <span class="pu">{</span>
+        <span class="ty">void</span> <span class="fn">show</span><span class="pu">()</span> <span class="pu">{</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">x</span><span class="pu">);</span> <span class="pu">}</span>  <span class="cm">// accesses outer x</span>
+    <span class="pu">}</span>
+<span class="pu">}</span>
+<span class="cm">// Usage:</span>
+<span class="cl">Outer</span> <span class="an">o</span>       <span class="op">=</span> <span class="kw">new</span> <span class="cl">Outer</span><span class="pu">();</span>
+<span class="cl">Outer.Inner</span> <span class="an">i</span> <span class="op">=</span> <span class="an">o</span><span class="pu">.</span><span class="kw">new</span> <span class="cl">Inner</span><span class="pu">();</span></code></pre>
+
+    <h2>2. Static Nested Class</h2>
+    <p>Declared with <code>static</code>. Cannot access outer class instance members (only static ones). Does NOT need outer instance.</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">class</span> <span class="cl">Outer</span> <span class="pu">{</span>
+    <span class="kw">static</span> <span class="ty">int</span> <span class="an">y</span> <span class="op">=</span> <span class="nu">20</span><span class="pu">;</span>
+
+    <span class="kw">static</span> <span class="kw">class</span> <span class="cl">Nested</span> <span class="pu">{</span>
+        <span class="ty">void</span> <span class="fn">show</span><span class="pu">()</span> <span class="pu">{</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">y</span><span class="pu">);</span> <span class="pu">}</span>
+    <span class="pu">}</span>
+<span class="pu">}</span>
+<span class="cm">// Usage: no outer instance needed</span>
+<span class="cl">Outer.Nested</span> <span class="an">n</span> <span class="op">=</span> <span class="kw">new</span> <span class="cl">Outer.Nested</span><span class="pu">();</span></code></pre>
+
+    <h2>3. Local Inner Class</h2>
+    <p>Defined inside a method. Only accessible within that method. Can access effectively final variables from the enclosing method.</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="ty">void</span> <span class="fn">myMethod</span><span class="pu">()</span> <span class="pu">{</span>
+    <span class="ty">int</span> <span class="an">val</span> <span class="op">=</span> <span class="nu">42</span><span class="pu">;</span>  <span class="cm">// effectively final</span>
+
+    <span class="kw">class</span> <span class="cl">Local</span> <span class="pu">{</span>
+        <span class="ty">void</span> <span class="fn">print</span><span class="pu">()</span> <span class="pu">{</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">val</span><span class="pu">);</span> <span class="pu">}</span>
+    <span class="pu">}</span>
+    <span class="kw">new</span> <span class="cl">Local</span><span class="pu">().</span><span class="fn">print</span><span class="pu">();</span>
+<span class="pu">}</span></code></pre>
+
+    <h2>4. Anonymous Inner Class</h2>
+    <p>A one-time-use class with no name. Declared and instantiated in a single expression. Commonly used to implement interfaces or extend abstract classes on the fly. (Largely replaced by lambdas in Java 8+.)</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cm">// Anonymous class implementing Runnable</span>
+<span class="cl">Runnable</span> <span class="an">r</span> <span class="op">=</span> <span class="kw">new</span> <span class="cl">Runnable</span><span class="pu">()</span> <span class="pu">{</span>
+    <span class="an">@Override</span>
+    <span class="kw">public</span> <span class="ty">void</span> <span class="fn">run</span><span class="pu">()</span> <span class="pu">{</span>
+        <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Running anonymously"</span><span class="pu">);</span>
+    <span class="pu">}</span>
+<span class="pu">};</span>
+<span class="an">r</span><span class="pu">.</span><span class="fn">run</span><span class="pu">();</span>
+
+<span class="cm">// Equivalent lambda (Java 8+)</span>
+<span class="cl">Runnable</span> <span class="an">r2</span> <span class="op">=</span> <span class="pu">()</span> <span class="op">-&gt;</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Running with lambda"</span><span class="pu">);</span></code></pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 11 — OBJECT CLASS
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-11" id="s11">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">11</span>Object Class</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <p><code>java.lang.Object</code> is the root of every class hierarchy. Every class in Java implicitly extends <code>Object</code>. It provides several methods that every object inherits.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Signature</th><th>Default Behaviour</th></tr></thead>
+        <tbody>
+          <tr><td><code>toString()</code></td><td><code>String toString()</code></td><td>Returns <code>ClassName@hashCode</code></td></tr>
+          <tr><td><code>equals()</code></td><td><code>boolean equals(Object o)</code></td><td>Reference equality (<code>==</code>)</td></tr>
+          <tr><td><code>hashCode()</code></td><td><code>int hashCode()</code></td><td>Memory-based int (implementation-specific)</td></tr>
+          <tr><td><code>getClass()</code></td><td><code>Class&lt;?&gt; getClass()</code></td><td>Runtime class of object</td></tr>
+          <tr><td><code>clone()</code></td><td><code>Object clone()</code></td><td>Shallow copy (requires Cloneable)</td></tr>
+          <tr><td><code>finalize()</code></td><td><code>void finalize()</code></td><td>Called by GC (deprecated Java 9+)</td></tr>
+          <tr><td><code>wait() / notify()</code></td><td>various</td><td>Thread communication (on the object's monitor)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Overriding toString, equals, hashCode</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">class</span> <span class="cl">Point</span> <span class="pu">{</span>
+    <span class="ty">int</span> <span class="an">x</span><span class="pu">,</span> <span class="an">y</span><span class="pu">;</span>
+    <span class="cl">Point</span><span class="pu">(</span><span class="ty">int</span> <span class="an">x</span><span class="pu">,</span> <span class="ty">int</span> <span class="an">y</span><span class="pu">)</span> <span class="pu">{</span> <span class="kw">this</span><span class="pu">.</span><span class="an">x</span> <span class="op">=</span> <span class="an">x</span><span class="pu">;</span> <span class="kw">this</span><span class="pu">.</span><span class="an">y</span> <span class="op">=</span> <span class="an">y</span><span class="pu">;</span> <span class="pu">}</span>
+
+    <span class="an">@Override</span>
+    <span class="kw">public</span> <span class="ty">String</span> <span class="fn">toString</span><span class="pu">()</span> <span class="pu">{</span>
+        <span class="kw">return</span> <span class="st">"Point("</span> <span class="op">+</span> <span class="an">x</span> <span class="op">+</span> <span class="st">", "</span> <span class="op">+</span> <span class="an">y</span> <span class="op">+</span> <span class="st">")"</span><span class="pu">;</span>
+    <span class="pu">}</span>
+
+    <span class="an">@Override</span>
+    <span class="kw">public</span> <span class="ty">boolean</span> <span class="fn">equals</span><span class="pu">(</span><span class="cl">Object</span> <span class="an">o</span><span class="pu">)</span> <span class="pu">{</span>
+        <span class="kw">if</span> <span class="pu">(</span><span class="kw">this</span> <span class="op">==</span> <span class="an">o</span><span class="pu">)</span> <span class="kw">return</span> <span class="kw">true</span><span class="pu">;</span>
+        <span class="kw">if</span> <span class="pu">(!(</span><span class="an">o</span> <span class="kw">instanceof</span> <span class="cl">Point</span><span class="pu">))</span> <span class="kw">return</span> <span class="kw">false</span><span class="pu">;</span>
+        <span class="cl">Point</span> <span class="an">p</span> <span class="op">=</span> <span class="pu">(</span><span class="cl">Point</span><span class="pu">)</span> <span class="an">o</span><span class="pu">;</span>
+        <span class="kw">return</span> <span class="kw">this</span><span class="pu">.</span><span class="an">x</span> <span class="op">==</span> <span class="an">p</span><span class="pu">.</span><span class="an">x</span> <span class="op">&amp;&amp;</span> <span class="kw">this</span><span class="pu">.</span><span class="an">y</span> <span class="op">==</span> <span class="an">p</span><span class="pu">.</span><span class="an">y</span><span class="pu">;</span>
+    <span class="pu">}</span>
+
+    <span class="an">@Override</span>
+    <span class="kw">public</span> <span class="ty">int</span> <span class="fn">hashCode</span><span class="pu">()</span> <span class="pu">{</span>
+        <span class="kw">return</span> <span class="cl">Objects</span><span class="pu">.</span><span class="fn">hash</span><span class="pu">(</span><span class="an">x</span><span class="pu">,</span> <span class="an">y</span><span class="pu">);</span>  <span class="cm">// must be consistent with equals</span>
+    <span class="pu">}</span>
+<span class="pu">}</span></code></pre>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <p><strong>Contract:</strong> If two objects are <code>equals()</code>, they MUST have the same <code>hashCode()</code>. Violating this breaks <code>HashMap</code>, <code>HashSet</code>, etc.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 12 — EXCEPTION HANDLING
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-12" id="s12">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">12</span>Exception Handling</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <p>An exception is an event that disrupts normal program flow. Java uses a hierarchical exception class system rooted at <code>Throwable</code>.</p>
+
+    <div class="ascii">
+java.lang.Throwable
+├── Error              (JVM problems — don't catch)
+│   ├── OutOfMemoryError
+│   └── StackOverflowError
+└── Exception
+    ├── IOException           ← Checked
+    ├── SQLException          ← Checked
+    ├── RuntimeException      ← Unchecked
+    │   ├── NullPointerException
+    │   ├── ArrayIndexOutOfBoundsException
+    │   ├── ClassCastException
+    │   └── IllegalArgumentException
+    └── ...
+    </div>
+
+    <h2>Checked vs Unchecked</h2>
+    <div class="two-col">
+      <div class="col-box">
+        <h4 style="color:var(--blue)">Checked Exceptions</h4>
+        <ul style="font-size:0.82rem">
+          <li>Subclass of <code>Exception</code> (not <code>RuntimeException</code>)</li>
+          <li>Must be declared with <code>throws</code> or caught</li>
+          <li>Compiler enforces handling</li>
+          <li>Examples: <code>IOException</code>, <code>SQLException</code></li>
+        </ul>
+      </div>
+      <div class="col-box">
+        <h4 style="color:var(--red)">Unchecked Exceptions</h4>
+        <ul style="font-size:0.82rem">
+          <li>Subclass of <code>RuntimeException</code></li>
+          <li>Compiler does NOT enforce handling</li>
+          <li>Usually programmer mistakes</li>
+          <li>Examples: <code>NullPointerException</code>, <code>ClassCastException</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>try-catch-finally</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">try</span> <span class="pu">{</span>
+    <span class="ty">int</span> <span class="an">result</span> <span class="op">=</span> <span class="nu">10</span> <span class="op">/</span> <span class="nu">0</span><span class="pu">;</span>  <span class="cm">// throws ArithmeticException</span>
+    <span class="kw">int</span><span class="pu">[]</span> <span class="an">arr</span> <span class="op">=</span> <span class="kw">new</span> <span class="ty">int</span><span class="pu">[</span><span class="nu">3</span><span class="pu">];</span>
+    <span class="an">arr</span><span class="pu">[</span><span class="nu">10</span><span class="pu">]</span> <span class="op">=</span> <span class="nu">5</span><span class="pu">;</span>              <span class="cm">// throws ArrayIndexOutOfBoundsException</span>
+
+<span class="pu">}</span> <span class="kw">catch</span> <span class="pu">(</span><span class="cl">ArithmeticException</span> <span class="an">e</span><span class="pu">)</span> <span class="pu">{</span>
+    <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Math error: "</span> <span class="op">+</span> <span class="an">e</span><span class="pu">.</span><span class="fn">getMessage</span><span class="pu">());</span>
+
+<span class="pu">}</span> <span class="kw">catch</span> <span class="pu">(</span><span class="cl">ArrayIndexOutOfBoundsException</span> <span class="op">|</span> <span class="cl">NullPointerException</span> <span class="an">e</span><span class="pu">)</span> <span class="pu">{</span>
+    <span class="cm">// Multi-catch (Java 7+)</span>
+    <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Array/Null issue: "</span> <span class="op">+</span> <span class="an">e</span><span class="pu">);</span>
+
+<span class="pu">}</span> <span class="kw">finally</span> <span class="pu">{</span>
+    <span class="cm">// ALWAYS runs — even if exception or return statement!</span>
+    <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Cleanup here"</span><span class="pu">);</span>
+<span class="pu">}</span>
+
+<span class="cm">// try-with-resources (Java 7+) — auto-closes Autocloseable</span>
+<span class="kw">try</span> <span class="pu">(</span><span class="cl">FileReader</span> <span class="an">fr</span> <span class="op">=</span> <span class="kw">new</span> <span class="cl">FileReader</span><span class="pu">(</span><span class="st">"file.txt"</span><span class="pu">))</span> <span class="pu">{</span>
+    <span class="cm">// fr.close() is called automatically</span>
+<span class="pu">}</span> <span class="kw">catch</span> <span class="pu">(</span><span class="cl">IOException</span> <span class="an">e</span><span class="pu">)</span> <span class="pu">{</span>
+    <span class="an">e</span><span class="pu">.</span><span class="fn">printStackTrace</span><span class="pu">();</span>
+<span class="pu">}</span></code></pre>
+
+    <h2>throw vs throws</h2>
+    <div class="two-col">
+      <div class="col-box">
+        <h4 style="color:var(--orange)">throw</h4>
+        <p style="font-size:0.82rem;color:var(--text2)">Used to <em>actually throw</em> an exception object in your code.</p>
+        <pre><code><span class="kw">throw</span> <span class="kw">new</span> <span class="cl">IllegalArgumentException</span><span class="pu">(</span><span class="st">"Bad input"</span><span class="pu">);</span></code></pre>
+      </div>
+      <div class="col-box">
+        <h4 style="color:var(--teal)">throws</h4>
+        <p style="font-size:0.82rem;color:var(--text2)">Declares that a method <em>might</em> throw a checked exception.</p>
+        <pre><code><span class="ty">void</span> <span class="fn">readFile</span><span class="pu">()</span> <span class="kw">throws</span> <span class="cl">IOException</span> <span class="pu">{</span>...<span class="pu">}</span></code></pre>
+      </div>
+    </div>
+
+    <h2>Custom Exceptions</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cm">// Custom checked exception</span>
+<span class="kw">class</span> <span class="cl">InsufficientFundsException</span> <span class="kw">extends</span> <span class="cl">Exception</span> <span class="pu">{</span>
+    <span class="kw">private</span> <span class="ty">double</span> <span class="an">amount</span><span class="pu">;</span>
+
+    <span class="cl">InsufficientFundsException</span><span class="pu">(</span><span class="ty">double</span> <span class="an">amount</span><span class="pu">)</span> <span class="pu">{</span>
+        <span class="kw">super</span><span class="pu">(</span><span class="st">"Insufficient funds: needed "</span> <span class="op">+</span> <span class="an">amount</span><span class="pu">);</span>
+        <span class="kw">this</span><span class="pu">.</span><span class="an">amount</span> <span class="op">=</span> <span class="an">amount</span><span class="pu">;</span>
+    <span class="pu">}</span>
+    <span class="kw">public</span> <span class="ty">double</span> <span class="fn">getAmount</span><span class="pu">()</span> <span class="pu">{</span> <span class="kw">return</span> <span class="an">amount</span><span class="pu">;</span> <span class="pu">}</span>
+<span class="pu">}</span>
+
+<span class="cm">// Custom unchecked exception</span>
+<span class="kw">class</span> <span class="cl">ValidationException</span> <span class="kw">extends</span> <span class="cl">RuntimeException</span> <span class="pu">{</span>
+    <span class="cl">ValidationException</span><span class="pu">(</span><span class="ty">String</span> <span class="an">msg</span><span class="pu">)</span> <span class="pu">{</span> <span class="kw">super</span><span class="pu">(</span><span class="an">msg</span><span class="pu">);</span> <span class="pu">}</span>
+<span class="pu">}</span></code></pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 13 — BOXING & UNBOXING
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-13" id="s13">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">13</span>Boxing &amp; Unboxing</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <p>Java's generic collections (like <code>List&lt;Integer&gt;</code>) can only hold <em>objects</em>, not primitives. Wrapper classes bridge this gap, wrapping each primitive in an object.</p>
+
+    <h2>Wrapper Classes</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Primitive</th><th>Wrapper Class</th><th>Useful Methods</th><th>Cache Range</th></tr></thead>
+        <tbody>
+          <tr><td><code>byte</code></td><td><code>Byte</code></td><td><code>parseByte(), valueOf()</code></td><td>-128 to 127</td></tr>
+          <tr><td><code>short</code></td><td><code>Short</code></td><td><code>parseShort(), valueOf()</code></td><td>-128 to 127</td></tr>
+          <tr><td><code>int</code></td><td><code>Integer</code></td><td><code>parseInt(), valueOf(), toBinaryString(), MAX_VALUE</code></td><td>-128 to 127</td></tr>
+          <tr><td><code>long</code></td><td><code>Long</code></td><td><code>parseLong(), valueOf()</code></td><td>-128 to 127</td></tr>
+          <tr><td><code>float</code></td><td><code>Float</code></td><td><code>parseFloat(), isNaN()</code></td><td>None</td></tr>
+          <tr><td><code>double</code></td><td><code>Double</code></td><td><code>parseDouble(), isInfinite()</code></td><td>None</td></tr>
+          <tr><td><code>char</code></td><td><code>Character</code></td><td><code>isDigit(), isLetter(), toUpperCase()</code></td><td>0 to 127</td></tr>
+          <tr><td><code>boolean</code></td><td><code>Boolean</code></td><td><code>parseBoolean(), TRUE, FALSE</code></td><td>true/false</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Autoboxing and Unboxing</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cm">// Autoboxing — primitive → wrapper (automatic)</span>
+<span class="cl">Integer</span> <span class="an">i</span> <span class="op">=</span> <span class="nu">42</span><span class="pu">;</span>                  <span class="cm">// equivalent to Integer.valueOf(42)</span>
+<span class="cl">List</span><span class="op">&lt;</span><span class="cl">Integer</span><span class="op">&gt;</span> <span class="an">list</span> <span class="op">=</span> <span class="kw">new</span> <span class="cl">ArrayList</span><span class="op">&lt;&gt;</span><span class="pu">();</span>
+<span class="an">list</span><span class="pu">.</span><span class="fn">add</span><span class="pu">(</span><span class="nu">100</span><span class="pu">);</span>                    <span class="cm">// int 100 autoboxed to Integer</span>
+
+<span class="cm">// Unboxing — wrapper → primitive (automatic)</span>
+<span class="ty">int</span> <span class="an">x</span> <span class="op">=</span> <span class="an">i</span><span class="pu">;</span>                       <span class="cm">// equivalent to i.intValue()</span>
+<span class="ty">int</span> <span class="an">sum</span> <span class="op">=</span> <span class="an">list</span><span class="pu">.</span><span class="fn">get</span><span class="pu">(</span><span class="nu">0</span><span class="pu">)</span> <span class="op">+</span> <span class="nu">5</span><span class="pu">;</span>      <span class="cm">// Integer unboxed for arithmetic</span></code></pre>
+
+    <h2>The Integer Cache Trap</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cl">Integer</span> <span class="an">a</span> <span class="op">=</span> <span class="nu">127</span><span class="pu">;</span>
+<span class="cl">Integer</span> <span class="an">b</span> <span class="op">=</span> <span class="nu">127</span><span class="pu">;</span>
+<span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">a</span> <span class="op">==</span> <span class="an">b</span><span class="pu">);</span>    <span class="cm">// TRUE  — cached object (-128 to 127)</span>
+
+<span class="cl">Integer</span> <span class="an">c</span> <span class="op">=</span> <span class="nu">128</span><span class="pu">;</span>
+<span class="cl">Integer</span> <span class="an">d</span> <span class="op">=</span> <span class="nu">128</span><span class="pu">;</span>
+<span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">c</span> <span class="op">==</span> <span class="an">d</span><span class="pu">);</span>    <span class="cm">// FALSE — new objects outside cache range</span>
+<span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">c</span><span class="pu">.</span><span class="fn">equals</span><span class="pu">(</span><span class="an">d</span><span class="pu">));</span>  <span class="cm">// TRUE  — always use .equals() for wrappers!</span></code></pre>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <p><strong>NullPointerException Pitfall:</strong> If a <code>Integer</code> wrapper is <code>null</code> and you unbox it into an <code>int</code>, you get an NPE. Always null-check before unboxing.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 14 — MULTITHREADING
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-14" id="s14">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">14</span>Multithreading</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <p>A <strong>thread</strong> is the smallest unit of CPU execution. Multithreading allows concurrent execution of two or more threads, enabling better CPU utilisation and responsiveness.</p>
+
+    <h2>Thread Lifecycle</h2>
+    <div class="ascii">
+    ┌──────────┐  start()   ┌─────────┐  scheduler  ┌─────────┐
+    │   NEW    │ ─────────▶ │RUNNABLE │ ──────────▶ │RUNNING  │
+    └──────────┘            └─────────┘             └────┬────┘
+                                 ▲                        │
+                                 │  notify() /            │  wait() / sleep()
+                                 │  timeout               │  join() / I/O block
+                                 │                        ▼
+                            ┌────┴─────┐           ┌──────────────┐
+                            │  BLOCKED │◀──────────│    WAITING   │
+                            │ (lock)   │           │  TIMED_WAIT  │
+                            └──────────┘           └──────────────┘
+                                                         │
+                                            run() ends / exception
+                                                         ▼
+                                                  ┌────────────┐
+                                                  │ TERMINATED │
+                                                  └────────────┘
+    </div>
+
+    <h2>Creating Threads — Two Ways</h2>
+    <div class="two-col">
+      <div class="col-box">
+        <h4 style="color:var(--blue)">Way 1: Extend Thread</h4>
+        <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">class</span> <span class="cl">MyThread</span> <span class="kw">extends</span> <span class="cl">Thread</span> <span class="pu">{</span>
+    <span class="an">@Override</span>
+    <span class="kw">public</span> <span class="ty">void</span> <span class="fn">run</span><span class="pu">()</span> <span class="pu">{</span>
+        <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span>
+          <span class="st">"Thread: "</span> <span class="op">+</span>
+          <span class="cl">Thread</span><span class="pu">.</span><span class="fn">currentThread</span><span class="pu">().</span><span class="fn">getName</span><span class="pu">());</span>
+    <span class="pu">}</span>
+<span class="pu">}</span>
+<span class="cl">MyThread</span> <span class="an">t</span> <span class="op">=</span> <span class="kw">new</span> <span class="cl">MyThread</span><span class="pu">();</span>
+<span class="an">t</span><span class="pu">.</span><span class="fn">start</span><span class="pu">();</span>  <span class="cm">// not t.run()!</span></code></pre>
+      </div>
+      <div class="col-box">
+        <h4 style="color:var(--green)">Way 2: Implement Runnable ✅ preferred</h4>
+        <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">class</span> <span class="cl">MyTask</span> <span class="kw">implements</span> <span class="cl">Runnable</span> <span class="pu">{</span>
+    <span class="an">@Override</span>
+    <span class="kw">public</span> <span class="ty">void</span> <span class="fn">run</span><span class="pu">()</span> <span class="pu">{</span>
+        <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Task running"</span><span class="pu">);</span>
+    <span class="pu">}</span>
+<span class="pu">}</span>
+<span class="cl">Thread</span> <span class="an">t</span> <span class="op">=</span> <span class="kw">new</span> <span class="cl">Thread</span><span class="pu">(</span><span class="kw">new</span> <span class="cl">MyTask</span><span class="pu">());</span>
+<span class="an">t</span><span class="pu">.</span><span class="fn">start</span><span class="pu">();</span>
+
+<span class="cm">// With lambda:</span>
+<span class="kw">new</span> <span class="cl">Thread</span><span class="pu">(()</span> <span class="op">-&gt;</span>
+    <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Lambda thread"</span><span class="pu">))</span>
+    <span class="pu">.</span><span class="fn">start</span><span class="pu">();</span></code></pre>
+      </div>
+    </div>
+
+    <h2>Key Thread Methods</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>start()</code></td><td>Creates new OS thread and calls run() on it. Never call run() directly!</td></tr>
+          <tr><td><code>run()</code></td><td>Contains the task. Called by JVM on the new thread.</td></tr>
+          <tr><td><code>sleep(ms)</code></td><td>Pauses thread for given ms. Does NOT release locks. Throws InterruptedException.</td></tr>
+          <tr><td><code>join()</code></td><td>Calling thread waits for this thread to finish.</td></tr>
+          <tr><td><code>interrupt()</code></td><td>Sets interrupt flag. If thread is sleeping/waiting, throws InterruptedException.</td></tr>
+          <tr><td><code>isAlive()</code></td><td>Returns true if thread has been started but not terminated.</td></tr>
+          <tr><td><code>getName() / setName()</code></td><td>Get/set the thread's name.</td></tr>
+          <tr><td><code>getPriority() / setPriority()</code></td><td>Priority 1 (MIN) to 10 (MAX), default 5. Hint to scheduler only.</td></tr>
+          <tr><td><code>setDaemon(true)</code></td><td>Daemon threads die when all user threads finish (e.g., GC thread).</td></tr>
+          <tr><td><code>yield()</code></td><td>Hints scheduler to give other threads a chance. Not reliable.</td></tr>
+          <tr><td><code>currentThread()</code></td><td>Static method returning the currently executing thread.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 15 — SYNCHRONIZATION & LOCKS
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-15" id="s15">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">15</span>Synchronization &amp; Locks</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <h2>Race Condition</h2>
+    <p>When multiple threads read and write shared data concurrently, the outcome depends on thread scheduling — producing unpredictable results.</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">class</span> <span class="cl">Counter</span> <span class="pu">{</span>
+    <span class="ty">int</span> <span class="an">count</span> <span class="op">=</span> <span class="nu">0</span><span class="pu">;</span>  <span class="cm">// shared state — DANGEROUS</span>
+
+    <span class="ty">void</span> <span class="fn">increment</span><span class="pu">()</span> <span class="pu">{</span>
+        <span class="an">count</span><span class="op">++</span><span class="pu">;</span>  <span class="cm">// NOT atomic: read → add 1 → write (3 steps!)</span>
+    <span class="pu">}</span>
+<span class="pu">}</span>
+<span class="cm">// Two threads running increment() 1000x may NOT give count = 2000</span></code></pre>
+
+    <h2>synchronized keyword</h2>
+    <p>Uses the object's <em>intrinsic lock (monitor)</em>. Only one thread can hold the lock at a time.</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cm">// 1. Synchronized instance method — lock on 'this'</span>
+<span class="kw">synchronized</span> <span class="ty">void</span> <span class="fn">increment</span><span class="pu">()</span> <span class="pu">{</span>
+    <span class="an">count</span><span class="op">++</span><span class="pu">;</span>  <span class="cm">// now thread-safe</span>
+<span class="pu">}</span>
+
+<span class="cm">// 2. Synchronized static method — lock on the Class object</span>
+<span class="kw">static</span> <span class="kw">synchronized</span> <span class="ty">void</span> <span class="fn">staticMethod</span><span class="pu">()</span> <span class="pu">{</span> <span class="pu">...</span> <span class="pu">}</span>
+
+<span class="cm">// 3. Synchronized block — finer-grained lock (preferred)</span>
+<span class="ty">void</span> <span class="fn">increment</span><span class="pu">()</span> <span class="pu">{</span>
+    <span class="cm">// do non-critical work here...</span>
+    <span class="kw">synchronized</span> <span class="pu">(</span><span class="kw">this</span><span class="pu">)</span> <span class="pu">{</span>  <span class="cm">// or any shared object</span>
+        <span class="an">count</span><span class="op">++</span><span class="pu">;</span>
+    <span class="pu">}</span>
+    <span class="cm">// do non-critical work here...</span>
+<span class="pu">}</span></code></pre>
+
+    <h2>Intrinsic vs Explicit Locks</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Feature</th><th>synchronized (Intrinsic)</th><th>ReentrantLock (Explicit)</th></tr></thead>
+        <tbody>
+          <tr><td>Syntax</td><td>Built into language</td><td><code>java.util.concurrent.locks</code></td></tr>
+          <tr><td>Auto-release</td><td>✅ Yes (exits block)</td><td>❌ Must call <code>unlock()</code> in finally</td></tr>
+          <tr><td>Fairness</td><td>❌ No guarantee</td><td>✅ Optional fair mode</td></tr>
+          <tr><td>Try-lock</td><td>❌ No</td><td>✅ <code>tryLock()</code> — non-blocking attempt</td></tr>
+          <tr><td>Multiple conditions</td><td>❌ Single wait-set</td><td>✅ Multiple <code>Condition</code> objects</td></tr>
+          <tr><td>Interruptible lock acquisition</td><td>❌ No</td><td>✅ <code>lockInterruptibly()</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>ReentrantLock Example</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">import</span> <span class="an">java.util.concurrent.locks.ReentrantLock</span><span class="pu">;</span>
+
+<span class="kw">class</span> <span class="cl">SafeCounter</span> <span class="pu">{</span>
+    <span class="kw">private</span> <span class="ty">int</span> <span class="an">count</span> <span class="op">=</span> <span class="nu">0</span><span class="pu">;</span>
+    <span class="kw">private</span> <span class="kw">final</span> <span class="cl">ReentrantLock</span> <span class="an">lock</span> <span class="op">=</span> <span class="kw">new</span> <span class="cl">ReentrantLock</span><span class="pu">();</span>
+
+    <span class="ty">void</span> <span class="fn">increment</span><span class="pu">()</span> <span class="pu">{</span>
+        <span class="an">lock</span><span class="pu">.</span><span class="fn">lock</span><span class="pu">();</span>
+        <span class="kw">try</span> <span class="pu">{</span>
+            <span class="an">count</span><span class="op">++</span><span class="pu">;</span>
+        <span class="pu">}</span> <span class="kw">finally</span> <span class="pu">{</span>
+            <span class="an">lock</span><span class="pu">.</span><span class="fn">unlock</span><span class="pu">();</span>  <span class="cm">// ALWAYS in finally!</span>
+        <span class="pu">}</span>
+    <span class="pu">}</span>
+<span class="pu">}</span></code></pre>
+
+    <h2>ReadWriteLock</h2>
+    <p>Allows multiple threads to <em>read</em> simultaneously, but only one thread to <em>write</em>. Greatly improves read-heavy scenarios.</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cl">ReadWriteLock</span> <span class="an">rwLock</span> <span class="op">=</span> <span class="kw">new</span> <span class="cl">ReentrantReadWriteLock</span><span class="pu">();</span>
+<span class="cl">Lock</span> <span class="an">readLock</span>  <span class="op">=</span> <span class="an">rwLock</span><span class="pu">.</span><span class="fn">readLock</span><span class="pu">();</span>
+<span class="cl">Lock</span> <span class="an">writeLock</span> <span class="op">=</span> <span class="an">rwLock</span><span class="pu">.</span><span class="fn">writeLock</span><span class="pu">();</span>
+
+<span class="cm">// Multiple readers OK simultaneously</span>
+<span class="an">readLock</span><span class="pu">.</span><span class="fn">lock</span><span class="pu">();</span>
+<span class="kw">try</span> <span class="pu">{</span> <span class="cm">/* read shared data */</span> <span class="pu">}</span>
+<span class="kw">finally</span> <span class="pu">{</span> <span class="an">readLock</span><span class="pu">.</span><span class="fn">unlock</span><span class="pu">();</span> <span class="pu">}</span>
+
+<span class="cm">// Only one writer at a time, no readers allowed</span>
+<span class="an">writeLock</span><span class="pu">.</span><span class="fn">lock</span><span class="pu">();</span>
+<span class="kw">try</span> <span class="pu">{</span> <span class="cm">/* modify shared data */</span> <span class="pu">}</span>
+<span class="kw">finally</span> <span class="pu">{</span> <span class="an">writeLock</span><span class="pu">.</span><span class="fn">unlock</span><span class="pu">();</span> <span class="pu">}</span></code></pre>
+
+    <h2>Deadlock</h2>
+    <p>Deadlock occurs when two or more threads are blocked forever, each waiting for a lock the other holds.</p>
+    <div class="ascii">
+Thread-1 holds Lock A, waiting for Lock B ─────┐
+                                                 ↕  DEADLOCK
+Thread-2 holds Lock B, waiting for Lock A ─────┘
+    </div>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cm">// Classic deadlock scenario</span>
+<span class="kw">synchronized</span><span class="pu">(</span><span class="an">lockA</span><span class="pu">)</span> <span class="pu">{</span>
+    <span class="cl">Thread</span><span class="pu">.</span><span class="fn">sleep</span><span class="pu">(</span><span class="nu">100</span><span class="pu">);</span>
+    <span class="kw">synchronized</span><span class="pu">(</span><span class="an">lockB</span><span class="pu">)</span> <span class="pu">{</span> <span class="cm">/* Thread-1 waits here */</span> <span class="pu">}</span>
+<span class="pu">}</span>
+<span class="cm">// Thread-2 acquires lockB first, then tries lockA — DEADLOCK!</span>
+
+<span class="cm">// FIX: always acquire locks in the SAME ORDER</span>
+<span class="kw">synchronized</span><span class="pu">(</span><span class="an">lockA</span><span class="pu">)</span> <span class="pu">{</span>
+    <span class="kw">synchronized</span><span class="pu">(</span><span class="an">lockB</span><span class="pu">)</span> <span class="pu">{</span> <span class="cm">/* both threads use A→B order */</span> <span class="pu">}</span>
+<span class="pu">}</span></code></pre>
+
+    <h2>Thread Communication — wait() / notify()</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">class</span> <span class="cl">SharedBox</span> <span class="pu">{</span>
+    <span class="kw">private</span> <span class="ty">int</span> <span class="an">value</span><span class="pu">;</span>
+    <span class="kw">private</span> <span class="ty">boolean</span> <span class="an">hasValue</span> <span class="op">=</span> <span class="kw">false</span><span class="pu">;</span>
+
+    <span class="kw">public synchronized</span> <span class="ty">void</span> <span class="fn">put</span><span class="pu">(</span><span class="ty">int</span> <span class="an">v</span><span class="pu">)</span> <span class="kw">throws</span> <span class="cl">InterruptedException</span> <span class="pu">{</span>
+        <span class="kw">while</span> <span class="pu">(</span><span class="an">hasValue</span><span class="pu">)</span> <span class="fn">wait</span><span class="pu">();</span>  <span class="cm">// release lock, wait for consumer</span>
+        <span class="kw">this</span><span class="pu">.</span><span class="an">value</span> <span class="op">=</span> <span class="an">v</span><span class="pu">;</span> <span class="an">hasValue</span> <span class="op">=</span> <span class="kw">true</span><span class="pu">;</span>
+        <span class="fn">notifyAll</span><span class="pu">();</span>  <span class="cm">// wake waiting threads</span>
+    <span class="pu">}</span>
+
+    <span class="kw">public synchronized</span> <span class="ty">int</span> <span class="fn">get</span><span class="pu">()</span> <span class="kw">throws</span> <span class="cl">InterruptedException</span> <span class="pu">{</span>
+        <span class="kw">while</span> <span class="pu">(!</span><span class="an">hasValue</span><span class="pu">)</span> <span class="fn">wait</span><span class="pu">();</span>  <span class="cm">// wait for producer</span>
+        <span class="an">hasValue</span> <span class="op">=</span> <span class="kw">false</span><span class="pu">;</span>
+        <span class="fn">notifyAll</span><span class="pu">();</span>
+        <span class="kw">return</span> <span class="an">value</span><span class="pu">;</span>
+    <span class="pu">}</span>
+<span class="pu">}</span></code></pre>
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <p>Always use <code>while</code> (not <code>if</code>) with <code>wait()</code> to guard against <em>spurious wakeups</em> — threads can be woken without <code>notify()</code> being called.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 16 — LAMBDA EXPRESSIONS
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-16" id="s16">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">16</span>Lambda Expressions</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <p>Lambdas (Java 8+) provide a concise way to implement <strong>functional interfaces</strong> — interfaces with exactly one abstract method. They enable functional-style programming in Java.</p>
+
+    <h2>Syntax</h2>
+    <div class="ascii">
+(parameters) -> expression
+(parameters) -> { statements; }
+
+Examples:
+()     -> System.out.println("hi")       // no params
+x      -> x * x                          // one param (parens optional)
+(x, y) -> x + y                          // two params
+(x, y) -> { int s = x+y; return s; }     // block body
+    </div>
+
+    <h2>Functional Interface</h2>
+    <p>Any interface with exactly one abstract method is a functional interface. The <code>@FunctionalInterface</code> annotation is optional but recommended — it makes the compiler enforce the single-method rule.</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="an">@FunctionalInterface</span>
+<span class="kw">interface</span> <span class="cl">Transformer</span> <span class="pu">{</span>
+    <span class="ty">int</span> <span class="fn">transform</span><span class="pu">(</span><span class="ty">int</span> <span class="an">x</span><span class="pu">);</span>
+<span class="pu">}</span>
+
+<span class="cm">// Anonymous class way (verbose)</span>
+<span class="cl">Transformer</span> <span class="an">square1</span> <span class="op">=</span> <span class="kw">new</span> <span class="cl">Transformer</span><span class="pu">()</span> <span class="pu">{</span>
+    <span class="an">@Override</span> <span class="kw">public</span> <span class="ty">int</span> <span class="fn">transform</span><span class="pu">(</span><span class="ty">int</span> <span class="an">x</span><span class="pu">)</span> <span class="pu">{</span> <span class="kw">return</span> <span class="an">x</span> <span class="op">*</span> <span class="an">x</span><span class="pu">;</span> <span class="pu">}</span>
+<span class="pu">};</span>
+
+<span class="cm">// Lambda way (concise)</span>
+<span class="cl">Transformer</span> <span class="an">square2</span> <span class="op">=</span> <span class="an">x</span> <span class="op">-&gt;</span> <span class="an">x</span> <span class="op">*</span> <span class="an">x</span><span class="pu">;</span>
+
+<span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">square2</span><span class="pu">.</span><span class="fn">transform</span><span class="pu">(</span><span class="nu">5</span><span class="pu">));</span>  <span class="cm">// 25</span></code></pre>
+
+    <h2>Built-in Functional Interfaces (java.util.function)</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Interface</th><th>Signature</th><th>Lambda Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>Runnable</code></td><td><code>void run()</code></td><td><code>() -&gt; System.out.println("run")</code></td></tr>
+          <tr><td><code>Supplier&lt;T&gt;</code></td><td><code>T get()</code></td><td><code>() -&gt; "hello"</code></td></tr>
+          <tr><td><code>Consumer&lt;T&gt;</code></td><td><code>void accept(T)</code></td><td><code>s -&gt; System.out.println(s)</code></td></tr>
+          <tr><td><code>Function&lt;T,R&gt;</code></td><td><code>R apply(T)</code></td><td><code>s -&gt; s.length()</code></td></tr>
+          <tr><td><code>Predicate&lt;T&gt;</code></td><td><code>boolean test(T)</code></td><td><code>s -&gt; s.isEmpty()</code></td></tr>
+          <tr><td><code>BiFunction&lt;T,U,R&gt;</code></td><td><code>R apply(T, U)</code></td><td><code>(a, b) -&gt; a + b</code></td></tr>
+          <tr><td><code>UnaryOperator&lt;T&gt;</code></td><td><code>T apply(T)</code></td><td><code>x -&gt; x * 2</code></td></tr>
+          <tr><td><code>BinaryOperator&lt;T&gt;</code></td><td><code>T apply(T, T)</code></td><td><code>(a, b) -&gt; a + b</code></td></tr>
+          <tr><td><code>Comparator&lt;T&gt;</code></td><td><code>int compare(T, T)</code></td><td><code>(a, b) -&gt; a.compareTo(b)</code></td></tr>
+          <tr><td><code>Callable&lt;V&gt;</code></td><td><code>V call()</code></td><td><code>() -&gt; computeResult()</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Method References (Shorthand Lambdas)</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cm">// Instead of: x -> System.out.println(x)</span>
+<span class="cl">Consumer</span><span class="op">&lt;</span><span class="ty">String</span><span class="op">&gt;</span> <span class="an">print</span> <span class="op">=</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">::</span><span class="fn">println</span><span class="pu">;</span>     <span class="cm">// instance method ref</span>
+
+<span class="cm">// Instead of: s -> s.toUpperCase()</span>
+<span class="cl">Function</span><span class="op">&lt;</span><span class="ty">String</span><span class="pu">,</span> <span class="ty">String</span><span class="op">&gt;</span> <span class="an">up</span> <span class="op">=</span> <span class="ty">String</span><span class="pu">::</span><span class="fn">toUpperCase</span><span class="pu">;</span> <span class="cm">// unbound method ref</span>
+
+<span class="cm">// Instead of: () -> new ArrayList&lt;&gt;()</span>
+<span class="cl">Supplier</span><span class="op">&lt;</span><span class="cl">List</span><span class="op">&gt;</span> <span class="an">newList</span> <span class="op">=</span> <span class="cl">ArrayList</span><span class="pu">::</span><span class="kw">new</span><span class="pu">;</span>          <span class="cm">// constructor ref</span>
+
+<span class="cm">// Instead of: (a, b) -> Integer.compare(a, b)</span>
+<span class="cl">Comparator</span><span class="op">&lt;</span><span class="cl">Integer</span><span class="op">&gt;</span> <span class="an">cmp</span> <span class="op">=</span> <span class="cl">Integer</span><span class="pu">::</span><span class="fn">compare</span><span class="pu">;</span>      <span class="cm">// static method ref</span>
+
+<span class="cm">// Common usage with streams</span>
+<span class="cl">List</span><span class="op">&lt;</span><span class="ty">String</span><span class="op">&gt;</span> <span class="an">names</span> <span class="op">=</span> <span class="cl">List</span><span class="pu">.</span><span class="fn">of</span><span class="pu">(</span><span class="st">"Charlie"</span><span class="pu">,</span> <span class="st">"Alice"</span><span class="pu">,</span> <span class="st">"Bob"</span><span class="pu">);</span>
+<span class="an">names</span><span class="pu">.</span><span class="fn">stream</span><span class="pu">()</span>
+     <span class="pu">.</span><span class="fn">filter</span><span class="pu">(</span><span class="an">s</span> <span class="op">-&gt;</span> <span class="an">s</span><span class="pu">.</span><span class="fn">length</span><span class="pu">()</span> <span class="op">&gt;</span> <span class="nu">3</span><span class="pu">)</span>
+     <span class="pu">.</span><span class="fn">sorted</span><span class="pu">()</span>
+     <span class="pu">.</span><span class="fn">forEach</span><span class="pu">(</span><span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">::</span><span class="fn">println</span><span class="pu">);</span>  <span class="cm">// method reference</span></code></pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 17 — THREAD POOLING & EXECUTORS
+══════════════════════════════════════════════════════════ -->
+<div class="section-card acc-17" id="s17">
+  <div class="section-header" onclick="toggle(this)">
+    <div class="section-title"><span class="section-num">17</span>Thread Pooling &amp; Executors</div>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body">
+    <div class="callout info">
+      <span class="callout-icon">ℹ️</span>
+      <p><strong>Why Thread Pools?</strong> Creating a new <code>Thread</code> object is expensive (OS resources). Submitting 1000 tasks that each spawn a thread would overload the system. Thread pools reuse a fixed set of worker threads — submit tasks, workers execute them, threads stay alive for the next task.</p>
+    </div>
+
+    <h2>ExecutorService</h2>
+    <p>The <code>ExecutorService</code> interface abstracts thread management. You submit tasks; the pool handles scheduling.</p>
+
+    <div class="ascii">
+Client Code                ExecutorService            Worker Threads
+     │                           │                         │
+     │   submit(task1)           │                         │
+     │ ─────────────────────────▶│  ┌──────────────────┐   │
+     │   submit(task2)           │  │   Task Queue     │──▶│ Thread-1
+     │ ─────────────────────────▶│  │  [t1][t2][t3].. │──▶│ Thread-2
+     │   submit(task3)           │  └──────────────────┘──▶│ Thread-3
+     │                           │                         │
+    </div>
+
+    <h2>Types of Thread Pools</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Factory Method</th><th>Behaviour</th><th>Best For</th></tr></thead>
+        <tbody>
+          <tr><td><code>newFixedThreadPool(n)</code></td><td>Exactly n threads, unlimited queue</td><td>Predictable load, CPU-bound tasks</td></tr>
+          <tr><td><code>newCachedThreadPool()</code></td><td>Creates threads on demand, reuses idle (60s TTL)</td><td>Many short-lived tasks</td></tr>
+          <tr><td><code>newSingleThreadExecutor()</code></td><td>One thread, tasks run sequentially</td><td>Ordered background processing</td></tr>
+          <tr><td><code>newScheduledThreadPool(n)</code></td><td>Supports delay / periodic scheduling</td><td>Timers, recurring jobs</td></tr>
+          <tr><td><code>newVirtualThreadPerTaskExecutor()</code></td><td>Java 21+ virtual threads (lightweight)</td><td>Massive concurrency, I/O-bound</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>ExecutorService Usage</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="kw">import</span> <span class="an">java.util.concurrent.*</span><span class="pu">;</span>
+
+<span class="cl">ExecutorService</span> <span class="an">pool</span> <span class="op">=</span> <span class="cl">Executors</span><span class="pu">.</span><span class="fn">newFixedThreadPool</span><span class="pu">(</span><span class="nu">4</span><span class="pu">);</span>
+
+<span class="cm">// submit(Runnable) — fire and forget</span>
+<span class="an">pool</span><span class="pu">.</span><span class="fn">submit</span><span class="pu">(()</span> <span class="op">-&gt;</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Task 1 running"</span><span class="pu">));</span>
+
+<span class="cm">// submit(Callable) — returns a Future</span>
+<span class="cl">Future</span><span class="op">&lt;</span><span class="cl">Integer</span><span class="op">&gt;</span> <span class="an">future</span> <span class="op">=</span> <span class="an">pool</span><span class="pu">.</span><span class="fn">submit</span><span class="pu">(()</span> <span class="op">-&gt;</span> <span class="pu">{</span>
+    <span class="cl">Thread</span><span class="pu">.</span><span class="fn">sleep</span><span class="pu">(</span><span class="nu">1000</span><span class="pu">);</span>  <span class="cm">// simulate work</span>
+    <span class="kw">return</span> <span class="nu">42</span><span class="pu">;</span>
+<span class="pu">});</span>
+
+<span class="cm">// future.get() blocks until result is ready</span>
+<span class="kw">try</span> <span class="pu">{</span>
+    <span class="ty">int</span> <span class="an">result</span> <span class="op">=</span> <span class="an">future</span><span class="pu">.</span><span class="fn">get</span><span class="pu">(</span><span class="nu">2</span><span class="pu">,</span> <span class="cl">TimeUnit</span><span class="pu">.</span><span class="an">SECONDS</span><span class="pu">);</span>  <span class="cm">// timeout</span>
+    <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"Result: "</span> <span class="op">+</span> <span class="an">result</span><span class="pu">);</span>
+<span class="pu">}</span> <span class="kw">catch</span> <span class="pu">(</span><span class="cl">TimeoutException</span> <span class="an">e</span><span class="pu">)</span> <span class="pu">{</span>
+    <span class="an">future</span><span class="pu">.</span><span class="fn">cancel</span><span class="pu">(</span><span class="kw">true</span><span class="pu">);</span>
+<span class="pu">}</span>
+
+<span class="cm">// Always shut down to release threads</span>
+<span class="an">pool</span><span class="pu">.</span><span class="fn">shutdown</span><span class="pu">();</span>             <span class="cm">// no new tasks, finish queued ones</span>
+<span class="an">pool</span><span class="pu">.</span><span class="fn">awaitTermination</span><span class="pu">(</span><span class="nu">5</span><span class="pu">,</span> <span class="cl">TimeUnit</span><span class="pu">.</span><span class="an">SECONDS</span><span class="pu">);</span>
+<span class="cm">// pool.shutdownNow();  // interrupt running tasks immediately</span></code></pre>
+
+    <h2>ScheduledExecutorService</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cl">ScheduledExecutorService</span> <span class="an">sched</span> <span class="op">=</span>
+    <span class="cl">Executors</span><span class="pu">.</span><span class="fn">newScheduledThreadPool</span><span class="pu">(</span><span class="nu">2</span><span class="pu">);</span>
+
+<span class="cm">// Run once after 3-second delay</span>
+<span class="an">sched</span><span class="pu">.</span><span class="fn">schedule</span><span class="pu">(()</span> <span class="op">-&gt;</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"delayed"</span><span class="pu">),</span>
+    <span class="nu">3</span><span class="pu">,</span> <span class="cl">TimeUnit</span><span class="pu">.</span><span class="an">SECONDS</span><span class="pu">);</span>
+
+<span class="cm">// Run every 1 second, starting after 0-second delay</span>
+<span class="an">sched</span><span class="pu">.</span><span class="fn">scheduleAtFixedRate</span><span class="pu">(()</span> <span class="op">-&gt;</span>
+    <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"tick"</span><span class="pu">),</span>
+    <span class="nu">0</span><span class="pu">,</span> <span class="nu">1</span><span class="pu">,</span> <span class="cl">TimeUnit</span><span class="pu">.</span><span class="an">SECONDS</span><span class="pu">);</span>
+
+<span class="cm">// Run with 1-second GAP after previous completes</span>
+<span class="an">sched</span><span class="pu">.</span><span class="fn">scheduleWithFixedDelay</span><span class="pu">(()</span> <span class="op">-&gt;</span>
+    <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="st">"tock"</span><span class="pu">),</span>
+    <span class="nu">0</span><span class="pu">,</span> <span class="nu">1</span><span class="pu">,</span> <span class="cl">TimeUnit</span><span class="pu">.</span><span class="an">SECONDS</span><span class="pu">);</span></code></pre>
+
+    <h2>Future &amp; CompletableFuture</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code><span class="cm">// CompletableFuture — async, non-blocking, chainable (Java 8+)</span>
+<span class="cl">CompletableFuture</span><span class="pu">.</span><span class="fn">supplyAsync</span><span class="pu">(()</span> <span class="op">-&gt;</span> <span class="fn">fetchData</span><span class="pu">())</span>
+    <span class="pu">.</span><span class="fn">thenApply</span><span class="pu">(</span><span class="an">data</span> <span class="op">-&gt;</span> <span class="fn">transform</span><span class="pu">(</span><span class="an">data</span><span class="pu">))</span>
+    <span class="pu">.</span><span class="fn">thenAccept</span><span class="pu">(</span><span class="an">result</span> <span class="op">-&gt;</span> <span class="cl">System</span><span class="pu">.</span><span class="an">out</span><span class="pu">.</span><span class="fn">println</span><span class="pu">(</span><span class="an">result</span><span class="pu">))</span>
+    <span class="pu">.</span><span class="fn">exceptionally</span><span class="pu">(</span><span class="an">ex</span> <span class="op">-&gt;</span> <span class="pu">{</span>
+        <span class="an">ex</span><span class="pu">.</span><span class="fn">printStackTrace</span><span class="pu">();</span>
+        <span class="kw">return</span> <span class="kw">null</span><span class="pu">;</span>
+    <span class="pu">});</span></code></pre>
+  </div>
+</div>
+
+</main><!-- /main -->
+
+<!-- Back to Top -->
+<button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">▲</button>
+
+<script>
+// ── Progress Bar ──
+const progressBar = document.getElementById('progress-bar');
+const backTop     = document.getElementById('back-top');
+
+window.addEventListener('scroll', () => {
+  const scrolled  = window.scrollY;
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  progressBar.style.width = (maxScroll > 0 ? (scrolled / maxScroll) * 100 : 0) + '%';
+  backTop.classList.toggle('visible', scrolled > 300);
+  updateActiveNav();
+});
+
+// ── Collapse / Expand ──
+function toggle(header) {
+  header.parentElement.classList.toggle('collapsed');
+}
+function expandAll()  { document.querySelectorAll('.section-card').forEach(c => c.classList.remove('collapsed')); }
+function collapseAll(){ document.querySelectorAll('.section-card').forEach(c => c.classList.add('collapsed')); }
+
+// ── Active Nav Highlight ──
+const sections = document.querySelectorAll('.section-card');
+const navLinks = document.querySelectorAll('#nav-list li a');
+
+function updateActiveNav() {
+  let current = '';
+  sections.forEach(sec => {
+    const rect = sec.getBoundingClientRect();
+    if (rect.top <= 120) current = sec.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.dataset.id === current);
+  });
+}
+
+// ── Sidebar Toggle (mobile) ──
+const sidebar   = document.getElementById('sidebar');
+const hamburger = document.getElementById('hamburger');
+const overlay   = document.getElementById('overlay');
+
+hamburger.addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+});
+overlay.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+});
+navLinks.forEach(a => a.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+}));
+
+// ── Search ──
+const searchBox  = document.getElementById('search-box');
+const noResults  = document.getElementById('no-results');
+
+searchBox.addEventListener('input', () => {
+  const q = searchBox.value.trim().toLowerCase();
+  let visible = 0;
+
+  sections.forEach(sec => {
+    const text = sec.textContent.toLowerCase();
+    const match = !q || text.includes(q);
+    sec.style.display = match ? '' : 'none';
+    if (match) visible++;
+
+    // Expand matching sections when searching
+    if (q && match) sec.classList.remove('collapsed');
+  });
+
+  navLinks.forEach(a => {
+    const secId = a.dataset.id;
+    const sec   = document.getElementById(secId);
+    a.classList.toggle('hidden', sec && sec.style.display === 'none');
+  });
+
+  noResults.style.display = visible === 0 ? 'block' : 'none';
+});
+
+// ── Copy Button ──
+function copyCode(btn) {
+  const code = btn.nextSibling.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = 'copy', 1800);
+  }).catch(() => {
+    btn.textContent = 'error';
+    setTimeout(() => btn.textContent = 'copy', 1800);
+  });
+}
+
+// ── Stagger animation on load ──
+sections.forEach((sec, i) => {
+  sec.style.animationDelay = (i * 0.04) + 's';
+});
+</script>
+</body>
+</html>
