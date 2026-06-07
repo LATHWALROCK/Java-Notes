@@ -3415,6 +3415,99 @@ list.<span class="fn">add</span>(<span class="nm">10</span>);                  <
                 </tbody>
             </table>
         </div>
+
+
+        <div class="subsection-header">
+            <h3><code>this</code> and <code>super</code> in Static Context</h3>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="t">⚠️ Critical Rule &mdash; Cannot Use <code>this</code> or <code>super</code> in Static Context
+            </div>
+            <p>
+                <code>this</code> refers to the <em>current instance</em> of the class.<br />
+                <code>super</code> refers to the <em>current instance's parent class</em>.<br />
+                <strong>Static methods and static blocks do not belong to any instance</strong> &mdash; they belong to
+                the
+                class itself. Therefore, <code>this</code> and <code>super</code> are meaningless (and illegal) in a
+                static context.
+            </p>
+        </div>
+
+        <div class="code-block">
+            <span class="lang-badge">JAVA</span>
+            <pre><span class="kw">class</span> <span class="tp">MyClass</span> {
+    <span class="kw">int</span> value = <span class="nm">10</span>;
+
+    <span class="cm">// ✅ Instance method — 'this' is valid</span>
+    <span class="kw">void</span> <span class="fn">instanceMethod</span>() {
+        <span class="tp">System</span>.out.<span class="fn">println</span>(<span class="kw">this</span>.value);   <span class="cm">// works fine</span>
+    }
+
+    <span class="cm">// ❌ Static method — 'this' and 'super' are ILLEGAL</span>
+    <span class="kw">static void</span> <span class="fn">staticMethod</span>() {
+        <span class="cm">// System.out.println(this.value);  // COMPILE ERROR: non-static variable 'this'</span>
+        <span class="cm">// super.toString();                // COMPILE ERROR: non-static variable 'super'</span>
+        <span class="tp">System</span>.out.<span class="fn">println</span>(<span class="st">"static — no 'this'"</span>);
+    }
+
+    <span class="cm">// ❌ Static initializer block — same restriction</span>
+    <span class="kw">static</span> {
+        <span class="cm">// int x = this.value;   // COMPILE ERROR</span>
+    }
+
+    <span class="cm">// ✅ main() is static — create an instance to work with objects</span>
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="tp">String</span>[] args) {
+        <span class="tp">MyClass</span> obj = <span class="kw">new</span> <span class="tp">MyClass</span>();   <span class="cm">// create instance</span>
+        obj.<span class="fn">instanceMethod</span>();           <span class="cm">// ✅ call via object reference</span>
+        <span class="fn">staticMethod</span>();                <span class="cm">// ✅ call directly (same class)</span>
+    }
+}</pre>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Keyword</th>
+                        <th>Instance Method</th>
+                        <th>Static Method</th>
+                        <th>Static Block</th>
+                        <th>Constructor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>this</code></td>
+                        <td><span class="pill pill-success">✅ Allowed</span></td>
+                        <td><span class="pill pill-danger">❌ Compile Error</span></td>
+                        <td><span class="pill pill-danger">❌ Compile Error</span></td>
+                        <td><span class="pill pill-success">✅ Allowed</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>super</code></td>
+                        <td><span class="pill pill-success">✅ Allowed</span></td>
+                        <td><span class="pill pill-danger">❌ Compile Error</span></td>
+                        <td><span class="pill pill-danger">❌ Compile Error</span></td>
+                        <td><span class="pill pill-success">✅ Allowed</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout callout-tip">
+            <div class="t">💡 Why?</div>
+            <p>
+                Static members are loaded into the <strong>Method Area</strong> (Metaspace) when the class is first
+                loaded
+                by the ClassLoader &mdash; long before any instance exists on the heap. Since there is no object in
+                memory,
+                <code>this</code> (a reference to the current object) and <code>super</code> (a reference through the
+                current
+                object to its parent) have nothing to point to. The JVM has no concept of "current instance" in a static
+                context.
+            </p>
+        </div>
         <div class="section-header anchor" id="part2-2">
             <div class="section-badge">
                 2.2
@@ -3498,6 +3591,117 @@ list.<span class="fn">add</span>(<span class="nm">10</span>);                  <
 </pre>
         </div>
         <div class="subsection-header">
+            <h3>The <code>super</code> Keyword &mdash; Uses &amp; Rules</h3>
+        </div>
+
+
+        <div class="card">
+            <p>
+                <code>super</code> is a reference to the <strong>immediate parent class</strong> of the current object.
+                It is used to access parent-class members (fields, methods, constructors) that are hidden or overridden
+                by the child class. It always refers to the <strong>direct parent</strong> only &mdash; chaining
+                <code>super.super.method()</code> is <strong>not supported</strong> in Java.
+            </p>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Use</th>
+                        <th>Syntax</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1. Call parent constructor</td>
+                        <td><code>super(args);</code></td>
+                        <td>Must be the <em>first statement</em> in a constructor; invokes the parent's constructor
+                            explicitly</td>
+                    </tr>
+                    <tr>
+                        <td>2. Call overridden parent method</td>
+                        <td><code>super.methodName();</code></td>
+                        <td>Invoke the parent's version of a method the child has overridden</td>
+                    </tr>
+                    <tr>
+                        <td>3. Access hidden parent field</td>
+                        <td><code>super.fieldName</code></td>
+                        <td>Access a parent field when the child declares a field with the same name (field hiding)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code-block">
+            <span class="lang-badge">JAVA</span>
+            <pre><span class="kw">class</span> <span class="tp">Animal</span> {
+    <span class="tp">String</span> name = <span class="st">"Animal"</span>;              <span class="cm">// parent field</span>
+
+    <span class="tp">Animal</span>(<span class="tp">String</span> name) {
+        <span class="kw">this</span>.name = name;
+    }
+
+    <span class="kw">void</span> <span class="fn">speak</span>() {
+        <span class="tp">System</span>.out.<span class="fn">println</span>(<span class="st">"Generic animal sound"</span>);
+    }
+}
+
+<span class="kw">class</span> <span class="tp">Dog</span> <span class="kw">extends</span> <span class="tp">Animal</span> {
+    <span class="tp">String</span> name = <span class="st">"Dog"</span>;                  <span class="cm">// hides parent field</span>
+
+    <span class="tp">Dog</span>(<span class="tp">String</span> name) {
+        <span class="kw">super</span>(name);                       <span class="cm">// ① call parent constructor — MUST be first</span>
+    }
+
+    <span class="an">@Override</span>
+    <span class="kw">void</span> <span class="fn">speak</span>() {
+        <span class="kw">super</span>.<span class="fn">speak</span>();                     <span class="cm">// ② invoke overridden parent method</span>
+        <span class="tp">System</span>.out.<span class="fn">println</span>(<span class="st">"Woof!"</span>);
+    }
+
+    <span class="kw">void</span> <span class="fn">showNames</span>() {
+        <span class="tp">System</span>.out.<span class="fn">println</span>(<span class="st">"Child  : "</span> + name);           <span class="cm">// "Dog"</span>
+        <span class="tp">System</span>.out.<span class="fn">println</span>(<span class="st">"Parent : "</span> + <span class="kw">super</span>.name);    <span class="cm">// ③ "Animal"</span>
+    }
+}
+
+<span class="cm">// Usage</span>
+<span class="tp">Dog</span> d = <span class="kw">new</span> <span class="tp">Dog</span>(<span class="st">"Rex"</span>);
+d.<span class="fn">speak</span>();
+<span class="cm">// Output:</span>
+<span class="cm">//   Generic animal sound</span>
+<span class="cm">//   Woof!</span>
+
+d.<span class="fn">showNames</span>();
+<span class="cm">// Output:</span>
+<span class="cm">//   Child  : Dog</span>
+<span class="cm">//   Parent : Animal</span></pre>
+        </div>
+
+        <div class="callout callout-key">
+            <div class="t">🔑 Key Rules for <code>super</code></div>
+            <ul>
+                <li><code>super()</code> must be the <strong>first statement</strong> in a constructor &mdash; you
+                    cannot call
+                    both <code>this()</code> and <code>super()</code> in the same constructor (only one can be first).
+                </li>
+                <li>If you do <em>not</em> explicitly write <code>super()</code>, the compiler automatically inserts a
+                    call to
+                    the <strong>no-arg parent constructor</strong>. If the parent lacks a no-arg constructor, it is a
+                    <strong>compile error</strong>.
+                </li>
+                <li><code>super</code> always refers to the <strong>immediate parent</strong> only &mdash; you cannot
+                    write
+                    <code>super.super.method()</code>.
+                </li>
+                <li><code>super</code> can only be used in <strong>instance context</strong> (instance methods,
+                    constructors)
+                    &mdash; <strong>never in static methods or static blocks</strong> (see Addition 1 above).</li>
+            </ul>
+        </div>
+        <div class="subsection-header">
             <h3>
                 Runtime Polymorphism (Dynamic Dispatch)
             </h3>
@@ -3516,6 +3720,84 @@ list.<span class="fn">add</span>(<span class="nm">10</span>);                  <
 }
 
 </pre>
+        </div>
+        <div class="callout callout-warning">
+            <div class="t">⚠️ Parent Reference &mdash; Child Instance Limitation</div>
+            <p>
+                If you hold a <strong>parent-class reference pointing to a child-class instance</strong>, the JVM
+                executes
+                the child's overridden method at runtime (dynamic dispatch &mdash; that is polymorphism at work).
+                However, through that parent reference you can <strong>only call methods declared in the parent
+                    class</strong>.
+                Child-specific methods &mdash; those <em>not</em> declared in or inherited from the parent &mdash; are
+                invisible to the parent reference at compile time.
+            </p>
+        </div>
+
+        <div class="code-block">
+            <span class="lang-badge">JAVA</span>
+            <pre><span class="kw">class</span> <span class="tp">Animal</span> {
+    <span class="kw">void</span> <span class="fn">sound</span>() { <span class="tp">System</span>.out.<span class="fn">println</span>(<span class="st">"..."</span>); }
+}
+<span class="kw">class</span> <span class="tp">Dog</span> <span class="kw">extends</span> <span class="tp">Animal</span> {
+    <span class="an">@Override</span>
+    <span class="kw">void</span> <span class="fn">sound</span>() { <span class="tp">System</span>.out.<span class="fn">println</span>(<span class="st">"Woof"</span>); }  <span class="cm">// overrides parent</span>
+    <span class="kw">void</span> <span class="fn">fetch</span>() { <span class="tp">System</span>.out.<span class="fn">println</span>(<span class="st">"Fetching!"</span>); } <span class="cm">// child-only method</span>
+}
+
+<span class="cm">// Parent reference, child instance</span>
+<span class="tp">Animal</span> a = <span class="kw">new</span> <span class="tp">Dog</span>();
+
+a.<span class="fn">sound</span>();       <span class="cm">// ✅ prints "Woof" — child's overridden method runs (dynamic dispatch)</span>
+<span class="cm">// a.fetch();    // ❌ COMPILE ERROR — fetch() is not part of Animal's contract</span>
+
+<span class="cm">// To call child-only methods: downcast with an instanceof guard</span>
+
+<span class="cm">// Java 16+ pattern matching:</span>
+<span class="kw">if</span> (a <span class="kw">instanceof</span> <span class="tp">Dog</span> d) {
+    d.<span class="fn">fetch</span>();     <span class="cm">// ✅ safe — d is typed as Dog</span>
+}
+
+<span class="cm">// Traditional approach (pre-Java 16):</span>
+<span class="kw">if</span> (a <span class="kw">instanceof</span> <span class="tp">Dog</span>) {
+    ((<span class="tp">Dog</span>) a).<span class="fn">fetch</span>();   <span class="cm">// ✅ explicit cast</span>
+}</pre>
+        </div>
+
+        <div class="callout callout-note">
+            <div class="t">📝 Summary &mdash; Parent Reference / Child Instance</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Decided At</th>
+                            <th>Based On</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Which method body executes</strong></td>
+                            <td>Runtime</td>
+                            <td>Actual object type (child)</td>
+                            <td>Child's overridden method runs ✅</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Which methods are accessible</strong></td>
+                            <td>Compile time</td>
+                            <td>Reference type (parent)</td>
+                            <td>Only parent's declared methods are visible</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Child-only methods</strong></td>
+                            <td>Compile time</td>
+                            <td>Reference type (parent)</td>
+                            <td>Inaccessible &mdash; must downcast to child type first</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="subsection-header">
             <h3>
@@ -9294,10 +9576,10 @@ words.<span class="fn">forEach</span>(w -&gt; map.<span class="fn">merge</span>(
                         ✘ Pre-Generics (Java 1.4)
                     </div>
                     <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                        <span class="lang-badge">
+                            JAVA
+                        </span>
+                        <pre>
 <span class="tp">List</span> names = <span class="kw">new</span> <span class="tp">ArrayList</span>();
 names.add(<span class="st">"Alice"</span>);
 names.add(<span class="st">"Bob"</span>);
@@ -9317,10 +9599,10 @@ names.add(<span class="nm">42</span>);          <span class="cm">// compiles! �
                         ✔ With Generics (Java 5+)
                     </div>
                     <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                        <span class="lang-badge">
+                            JAVA
+                        </span>
+                        <pre>
 <span class="tp">List</span>&lt;<span class="tp">String</span>&gt; names = <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;();
 names.add(<span class="st">"Alice"</span>);
 names.add(<span class="st">"Bob"</span>);
@@ -9469,10 +9751,10 @@ names.add(<span class="st">"Bob"</span>);
                 as a placeholder that is filled in when the class is instantiated.
             </p>
             <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                <span class="lang-badge">
+                    JAVA
+                </span>
+                <pre>
 <span class="kw">public class</span> <span class="tp">Box</span>&lt;<span class="tp">T</span>&gt; {          <span class="cm">// T is the type parameter</span>
 
     <span class="kw">private</span> <span class="tp">T</span> value;            <span class="cm">// field of type T</span>
@@ -9504,10 +9786,10 @@ names.add(<span class="st">"Bob"</span>);
                         Multiple Type Parameters &mdash; Pair&lt;K, V&gt;
                     </h3>
                     <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                        <span class="lang-badge">
+                            JAVA
+                        </span>
+                        <pre>
 <span class="kw">public class</span> <span class="tp">Pair</span>&lt;<span class="tp">K</span>, <span class="tp">V</span>&gt; {
     <span class="kw">private final</span> <span class="tp">K</span> key;
     <span class="kw">private final</span> <span class="tp">V</span> value;
@@ -9538,10 +9820,10 @@ names.add(<span class="st">"Bob"</span>);
                         Generic Interfaces
                     </h3>
                     <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                        <span class="lang-badge">
+                            JAVA
+                        </span>
+                        <pre>
 <span class="cm">// Built-in generic interfaces</span>
 <span class="kw">public interface</span> <span class="tp">Comparable</span>&lt;<span class="tp">T</span>&gt; {
     <span class="kw">int</span> <span class="fn">compareTo</span>(<span class="tp">T</span> other);
@@ -9788,10 +10070,10 @@ names.add(<span class="st">"Bob"</span>);
                 . This is independent of whether the enclosing class is itself generic.
             </p>
             <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                <span class="lang-badge">
+                    JAVA
+                </span>
+                <pre>
 <span class="cm">// Anatomy:  &lt;TypeParam&gt;  ReturnType  methodName(params)</span>
 <span class="kw">public static</span> &lt;<span class="tp">T</span>&gt; <span class="tp">T</span> <span class="fn">identity</span>(<span class="tp">T</span> t) {
     <span class="kw">return</span> t;
@@ -9830,10 +10112,10 @@ names.add(<span class="st">"Bob"</span>);
                         :
                     </p>
                     <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                        <span class="lang-badge">
+                            JAVA
+                        </span>
+                        <pre>
 <span class="cm">// Type inference (preferred)</span>
 <span class="tp">List</span>&lt;<span class="tp">String</span>&gt; ls =
     <span class="tp">Collections</span>.<span class="fn">emptyList</span>();
@@ -9858,10 +10140,10 @@ names.add(<span class="st">"Bob"</span>);
                         parameter:
                     </p>
                     <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                        <span class="lang-badge">
+                            JAVA
+                        </span>
+                        <pre>
 <span class="kw">class</span> <span class="tp">Container</span>&lt;<span class="tp">T</span>&gt; {
     <span class="kw">private</span> <span class="tp">T</span> content;
     <span class="kw">private</span> <span class="tp">String</span> label;
@@ -9944,10 +10226,10 @@ names.add(<span class="st">"Bob"</span>);
                 ) says "T must be a subtype of X". This also lets you call X's methods on values of type T.
             </p>
             <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                <span class="lang-badge">
+                    JAVA
+                </span>
+                <pre>
 <span class="cm">// Without bound &mdash; T is just Object, can't call intValue()</span>
 <span class="kw">public static</span> &lt;<span class="tp">T</span>&gt; <span class="kw">double</span> <span class="fn">sumBad</span>(<span class="tp">List</span>&lt;<span class="tp">T</span>&gt; list) {
     <span class="kw">double</span> sum = <span class="nm">0</span>;
@@ -9971,10 +10253,10 @@ names.add(<span class="st">"Bob"</span>);
 </pre>
             </div>
             <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                <span class="lang-badge">
+                    JAVA
+                </span>
+                <pre>
 <span class="cm">// T must extend Comparable AND implement Serializable</span>
 <span class="kw">public static</span> &lt;<span class="tp">T</span> <span class="kw">extends</span> <span class="tp">Comparable</span>&lt;<span class="tp">T</span>&gt; &amp; <span class="tp">Serializable</span>&gt;
         <span class="tp">T</span> <span class="fn">clampAndSerialize</span>(<span class="tp">T</span> val, <span class="tp">T</span> min, <span class="tp">T</span> max) {
@@ -9989,10 +10271,10 @@ names.add(<span class="st">"Bob"</span>);
 </pre>
             </div>
             <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                <span class="lang-badge">
+                    JAVA
+                </span>
+                <pre>
 <span class="cm">// Find the maximum element in any List of Comparable elements</span>
 <span class="kw">public static</span> &lt;<span class="tp">T</span> <span class="kw">extends</span> <span class="tp">Comparable</span>&lt;<span class="tp">T</span>&gt;&gt; <span class="tp">T</span> <span class="fn">max</span>(<span class="tp">List</span>&lt;<span class="tp">T</span>&gt; list) {
     <span class="kw">if</span> (list.<span class="fn">isEmpty</span>())
@@ -10471,10 +10753,10 @@ names.add(<span class="st">"Bob"</span>);
                             ✘ Arrays (covariant) &mdash; unsafe!
                         </div>
                         <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                            <span class="lang-badge">
+                                JAVA
+                            </span>
+                            <pre>
 <span class="tp">Dog</span>[] dogs = <span class="kw">new</span> <span class="tp">Dog</span>[<span class="nm">2</span>];
 <span class="tp">Animal</span>[] animals = dogs;   <span class="cm">// &checkmark; compiles</span>
 animals[<span class="nm">0</span>] = <span class="kw">new</span> <span class="tp">Cat</span>();   <span class="cm">// compiles!</span>
@@ -10488,10 +10770,10 @@ animals[<span class="nm">0</span>] = <span class="kw">new</span> <span class="tp
                             ✔ Generics (invariant) &mdash; safe!
                         </div>
                         <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                            <span class="lang-badge">
+                                JAVA
+                            </span>
+                            <pre>
 <span class="tp">List</span>&lt;<span class="tp">Dog</span>&gt; dogs = <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;();
 <span class="cm">// List&lt;Animal&gt; a = dogs;</span>
 <span class="cm">// &larr; COMPILE ERROR &checkmark;</span>
@@ -10597,10 +10879,10 @@ animals[<span class="nm">0</span>] = <span class="kw">new</span> <span class="tp
                         Before Erasure (source)
                     </h3>
                     <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                        <span class="lang-badge">
+                            JAVA
+                        </span>
+                        <pre>
 <span class="kw">public class</span> <span class="tp">Box</span>&lt;<span class="tp">T</span>&gt; {
     <span class="kw">private</span> <span class="tp">T</span> value;
 
@@ -10623,10 +10905,10 @@ b.<span class="fn">set</span>(<span class="st">"hello"</span>);
                         After Erasure (bytecode equivalent)
                     </h3>
                     <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                        <span class="lang-badge">
+                            JAVA
+                        </span>
+                        <pre>
 <span class="kw">public class</span> <span class="tp">Box</span> {          <span class="cm">// raw</span>
     <span class="kw">private</span> <span class="tp">Object</span> value;    <span class="cm">// T &rarr; Object</span>
 
@@ -10795,10 +11077,10 @@ b.<span class="fn">set</span>(<span class="st">"hello"</span>);
                 </div>
             </div>
             <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                <span class="lang-badge">
+                    JAVA
+                </span>
+                <pre>
 <span class="cm">// &cross; Cannot do: new T()</span>
 <span class="cm">// &checkmark; Workaround &mdash; pass a Supplier or Class&lt;T&gt;</span>
 <span class="kw">public class</span> <span class="tp">Factory</span>&lt;<span class="tp">T</span>&gt; {
@@ -11149,10 +11431,10 @@ b.<span class="fn">set</span>(<span class="st">"hello"</span>);
                         ✘ Raw Type &mdash; Avoid!
                     </div>
                     <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                        <span class="lang-badge">
+                            JAVA
+                        </span>
+                        <pre>
 <span class="cm">// Raw type &mdash; generates "unchecked" warnings</span>
 <span class="tp">List</span> list = <span class="kw">new</span> <span class="tp">ArrayList</span>();
 list.<span class="fn">add</span>(<span class="st">"hello"</span>);
@@ -11169,10 +11451,10 @@ list.<span class="fn">add</span>(<span class="nm">42</span>);    <span class="cm
                         ✔ Parameterized Type &mdash; Correct
                     </div>
                     <div class="code-block">
-                    <span class="lang-badge">
-                        JAVA
-                    </span>
-                    <pre>
+                        <span class="lang-badge">
+                            JAVA
+                        </span>
+                        <pre>
 <span class="cm">// Fully parameterized</span>
 <span class="tp">List</span>&lt;<span class="tp">String</span>&gt; list = <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;();
 list.<span class="fn">add</span>(<span class="st">"hello"</span>);
